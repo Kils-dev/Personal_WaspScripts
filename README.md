@@ -2,7 +2,7 @@
  This is my public rep. for simba scripts.
 
 # Current Scripts:
-* reanimate.simba
+* Reanimate_Kilsbigpils.simba
 
 # More info:
 * <b>WaspScripts</b> - https://waspscripts.com/ <br>
