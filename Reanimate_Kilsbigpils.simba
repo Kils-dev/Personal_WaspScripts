@@ -53,7 +53,7 @@ Const
 
 procedure Init();
   begin
-    //ClearDebug();
+    ClearDebug();
     Login.PlayerIndex                 := 0;
     RSW.Setup('world');
     RSW.AdaptiveWalk := True;
@@ -87,6 +87,18 @@ procedure Init();
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   TSRLBaseRecord.Fatal("Terminating script, player isn't on Arceuus Spell Book");
 
+writeln(" _  ___ _    _    _           _ _    ");
+writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
+writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
+writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
+writeln("                   |___/|_|          ");
+writeln("=====================================");
+writeln("     Script: Dark Altar Reanimate");
+writeln("             Version 1.0");
+writeln("=====================================");
+writeln("             -[Credits]-");
+writeln("- @SimonK, @skunkworks13, @Club XJ");
+writeln("=====================================");
 end;
 
 procedure TAntiban.Setup(); override;
@@ -117,7 +129,6 @@ function InSummonArea(): Boolean;
 begin
   Result := SummonArea.Contains(RSW.GetMyPos());
 end;
-
 
 procedure WalkToSummon; // Inside of Zeah
 begin
@@ -303,6 +314,8 @@ begin
   //writeln("Summon");
   if not RSClient.IsLoggedIn then exit;
   begin
+      WaitUntil(not MainScreen.WaitInCombat(2400), 500, 15000);
+      writeln("Not in combat, starting reanimation");
       Magic.CastSpell(Spellcast);
       WaitUntil(Inventory.IsOpen, 500, 6000);
       HeadCount := Inventory.CountItem(HeadName);
@@ -368,6 +381,10 @@ begin
   exit;
 end;
 
+procedure ScriptReport()
+begin
+writeln("Nothing");
+end;
 
 procedure MainLoop;
 begin
@@ -421,19 +438,14 @@ procedure TempDebugger()
   end;
 
 begin
-if not RSClient.IsLoggedIn then
-begin
+if (not RSClient.IsLoggedIn) then
+  begin
   if Login.GetPlayer.Password <> '' then
-  begin
-    Login.LoginPlayer();
-  end
+    Login.LoginPlayer
   else
-  begin
-    writeln('No player credentials');
+  writeln('No player credentials');
     Exit;
   end;
-end;
-
 
 //TempDebugger();
   Init();
