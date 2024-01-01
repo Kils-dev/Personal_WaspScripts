@@ -61,7 +61,7 @@ begin
     'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
     'Ensouled minotaur head', 'Ensouled scorpion head', 'Ensouled bear head',
     'Ensouled unicorn head':
-      Result := ERSSPELL.BASIC_REANIMATION;
+      result := ERSSPELL.BASIC_REANIMATION;
 
     'Ensouled dog head', 'Ensouled chaos druid head', 'Ensouled ogre head',
     'Ensouled giant head', 'Ensouled elf head', 'Ensouled troll head',
@@ -83,7 +83,11 @@ end;
 
 procedure Init();
   begin
-  Spell := EnsouledHeadHandler
+  Spell := EnsouledHeadHandler;
+
+  if Spell = ERSSPELL.UNKNOWN then
+  Terminatescript("Unkown Head name, make sure to type it correctly");
+
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   Terminatescript("Player isn't on Arceuus Spell Book");
 
