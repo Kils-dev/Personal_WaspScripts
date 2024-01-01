@@ -10,7 +10,7 @@
     Script: Dark Altar Reanimate
               Rev. 1.0
             -[Credits]-
-   - @SimonK, @skunkworks, @Club XJ, @student                }
+- @SimonK, @Skunkworks, @Club XJ, @Student                }
 
 {--          -- REQ. INFO --           --
  * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS.
@@ -22,8 +22,8 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 
 Const
   HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
-  //Usefood = False; //
-  //FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
+  Usefood = False; // Want to use food?
+  FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
   SpellCast = ERSSPELL.EXPERT_REANIMATION; // Summon Spell name
   DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
   FairyRingStaff = "Dramen staff"; // "Dramen staff" or "Lunar staff"
@@ -82,9 +82,25 @@ begin
   end;
 end;
 
+function PrayerProtectionHandler: Boolean;
+begin
+  case HeadName of
+  'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
+  'Ensouled minotaur head', 'Ensouled scorpion head', 'Ensouled bear head',
+  'Ensouled unicorn head', 'Ensouled dog head', 'Ensouled chaos druid head',
+  'Ensouled ogre head','Ensouled giant head', 'Ensouled elf head', 'Ensouled troll head',
+  'Ensouled horror head', 'Ensouled kalphite head', 'Ensouled bloodveld head',
+  'Ensouled tzhaar head', 'Ensouled demon head', 'Ensouled hellhound head',
+  'Ensouled aviansie head', 'Ensouled abyssal head', 'Ensouled dragon head':
+  result := Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+
+  'Ensouled dagannoth head':
+  result := Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MISSILES);
+  end;
+end;
+
 procedure Init();
   begin
-  //Spell := EnsouledHeadHandler;
   ClearDebug();
 
   if MainWeapon = 'Unarmed' then
@@ -204,13 +220,11 @@ end;
 
 procedure Banking;
 var
-  i : integer;
-
   RingofDueling := TRSBankItem.Setup('Ring of dueling(8)', 1, False);
   RingofWealth  := TRSBankItem.Setup('Ring of wealth(5)', 1, False);
   ArdougneCloak := TRSBankItem.Setup(ArdyCloak, 1, False);
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
-  //FoodNameSTP   := TRSBankItem.Setup(FoodName, 1, False);
+  FoodNameSTP   := TRSBankItem.Setup(FoodName, 4, False);
 
   Earthrune     := TRSBankItem.Setup('Earth rune', 100, False);
   Lawrune       := TRSBankItem.Setup('Law rune', 50, False);
@@ -224,58 +238,49 @@ begin
   Writeln("Banking");
   if not RSClient.IsLoggedIn then exit;
 
-  If  (Minimap.GetHPPercent() <= 90) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
+  if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
     repeat
-  Inventory.Consume(ERSConsumable.FOOD);
-    until (not Minimap.GetHPPercent() <= 90) or  (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
+      Inventory.Consume(ERSConsumable.FOOD);
+    until (not Minimap.GetHPPercent() <= 85) or (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
 
   if InCWarsArea then
   begin
     RSW.WebWalk([5164, 4115], 5, 0.1);
     wait(SRL.SkewedRand(500, 250, 1500));
-    Bank.open(ERSBANKLOCATION.CASTLE_WARS);
-    wait(SRL.SkewedRand(750, 500, 1500));
+    repeat Bank.open(ERSBANKLOCATION.CASTLE_WARS);
+    until bank.IsOpen(1500, 500);
+      wait(SRL.SkewedRand(750, 500, 1500));
+    If not Inventory.ContainsItem("Ring of dueling(1..8)") then
+      writeln("Withdrawing 1x Ring of dueling (8)");
+      Bank.WithdrawItem(RingofDueling, False);
   end;
 
   if InFeroxEnclave then
   begin
-  // Change code bellow
-    RSW.WebWalk([5164, 4115], 5, 0.1);
+    RSW.WebWalk([7932, 1933], 5, 0.1);
     wait(SRL.SkewedRand(500, 250, 1500));
-    Bank.open(ERSBANKLOCATION.FEROX);
-    wait(SRL.SkewedRand(750, 500, 1500));
+    repeat Bank.open(ERSBANKLOCATION.FEROX);
+    until bank.IsOpen(1500, 500);
+      wait(SRL.SkewedRand(750, 500, 1500));
+    If not Inventory.ContainsItem("Ring of dueling(1..8)") then
+      writeln("Withdrawing 1x Ring of dueling (8)");
+      Bank.WithdrawItem(RingofDueling, False);
   end;
 
   if InGE then
   begin
-    // Change code bellow
-    RSW.WebWalk([5164, 4115], 5, 0.1);
+    RSW.WebWalk([8052, 2503], 5, 0.5);
     wait(SRL.SkewedRand(500, 250, 1500));
-    Bank.open(ERSBANKLOCATION.GRAND_EXCHANGE);
-    wait(SRL.SkewedRand(750, 500, 1500));
+    repeat Bank.open(ERSBANKLOCATION.GRAND_EXCHANGE);
+    until bank.IsOpen(1500, 500);
+      wait(SRL.SkewedRand(750, 500, 1500));
+    If not Inventory.ContainsItem("Ring of wealth(1..5)") then
+      writeln("Withdrawing 1x Ring of wealth (5)");
+      Bank.WithdrawItem(RingofWealth, False);
   end;
-
-     // Change code logic START //
-  if not bank.isopen then
-  begin
-    for i:=1 to 25 do
-    begin
-      writeln("Entered banking for to do loop");
-      Bank.open(ERSBANKLOCATION.CASTLE_WARS);
-      Wait(SRL.SkewedRand(500, 250, 1000));
-      if bank.IsOpen(1500, 500) then break;
-      Antiban.RandomRotate();
-      Inc(i);
-    end;
-  end;
-     // Change code logic END //
 
   If Not bank.ContainsItem(Headname) then
-    Terminatescript("Could not find [" + HeadName + "]  in bank, terminating script.");
-
-  If not Inventory.ContainsItem("Ring of dueling(1..8)") then
-    writeln("Withdrawing 1x Ring of dueling (8)");
-    Bank.WithdrawItem(RingofDueling, False);
+    Terminatescript("Could not find [" + HeadName + "] in bank, terminating script.");
 
   // DarkAltarTeleportMethod handler
   case DarkAltarTeleportMethod of
@@ -370,6 +375,7 @@ begin
   writeln("Traveling to Zeah using the Arceus Library teleport");
   Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
   Waituntil(INZeahArea, 500, 7500);
+  RSMouseZoom.SetZoomLevel(Random(2, 15));
 end;
 
 procedure ToCwars;
