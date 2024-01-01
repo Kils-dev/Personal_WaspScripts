@@ -22,11 +22,12 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 
 Const
   HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
-  Usefood = False; //
+  //Usefood = False; //
   //FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
   SpellCast = ERSSPELL.EXPERT_REANIMATION; // Summon Spell name
   DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
   FairyRingStaff = "Dramen staff"; // "Dramen staff" or "Lunar staff"
+  BankingLocation = "Castle Wars"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
 
 {.............-= [SETTINGS END] =-.............}
 
@@ -34,26 +35,76 @@ var
   RSW: TRSWalker;
   Transport : TUniversalTransport;
   HoverSpell : TBox;
+  Spell: ERSSpell;
   StartXP : Int32;
+  MainWeapon := Combat.GetWeapon();
   ArdyDiary := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
   ArdyCloak := 'Ardougne cloak ' + ToStr(ArdyDiary);
-  ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
-  MainWeapon := Combat.GetWeapon();
+  ROD: TRSItemArray = ['Ring of dueling(8)','Ring of dueling(7)','Ring of dueling(6)','Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
 
 Const
-  ZeahArea      : TBox = [1854, 899, 2263, 1139];
-  MonasteryArea : TBox = [5697, 3478, 6092, 3660];
-  SummonArea    : Tbox = [2061, 916, 22238, 968];
-  CWarsArea     : Tbox = [5136, 4056, 5173, 4120];
-  InvBox        : TBox = [629, 170, 655, 200];
-  SummonSpots   : TPointArray = [[2188, 940], [2184, 940], [2180, 940], [2176, 940],
-                               [2172, 940], [2180, 944], [2184, 944], [2160, 948],
-                               [2156, 948]];
+  FeroxEnclaveArea : Tbox = [7826, 1813, 8158, 2058];
+  MonasteryArea    : TBox = [5697, 3478, 6092, 3660];
+  SummonArea       : Tbox = [2061, 916, 22238, 968];
+  CWarsArea        : Tbox = [5136, 4056, 5173, 4120];
+  ZeahArea         : TBox = [1854, 899, 2263, 1139];
+  GEArea           : Tbox = [7780, 2300, 8400, 2950];
+  InvBox           : TBox = [629, 170, 655, 200];
+  SummonSpots      : TPointArray = [[2188, 940], [2184, 940], [2180, 940], [2176, 940],
+                                    [2172, 940], [2180, 944], [2184, 944], [2160, 948],
+                                    [2156, 948]];
+
+function EnsouledHeadHandler: ERSSpell;
+begin
+  case HeadName of
+    'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
+    'Ensouled minotaur head', 'Ensouled scorpion head', 'Ensouled bear head',
+    'Ensouled unicorn head':
+      Result := ERSSPELL.BASIC_REANIMATION;
+
+    'Ensouled dog head', 'Ensouled chaos druid head', 'Ensouled ogre head',
+    'Ensouled giant head', 'Ensouled elf head', 'Ensouled troll head',
+    'Ensouled horror head':
+      result := ERSSPELL.ADEPT_REANIMATION;
+
+    'Ensouled kalphite head', 'Ensouled dagannoth head',
+    'Ensouled bloodveld head', 'Ensouled tzhaar head', 'Ensouled demon head',
+    'Ensouled hellhound head':
+      result := ERSSPELL.EXPERT_REANIMATION;
+
+    'Ensouled aviansie head', 'Ensouled abyssal head', 'Ensouled dragon head':
+      result := ERSSPELL.MASTER_REANIMATION;
+
+    else
+      result := ERSSPELL.UNKNOWN;
+  end;
+end;
 
 procedure Init();
   begin
+  Spell := EnsouledHeadHandler
+  if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
+  Terminatescript("Player isn't on Arceuus Spell Book");
+
     ClearDebug();
+    writeln(" _  ___ _    _    _           _ _    ");
+    writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
+    writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
+    writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
+    writeln("                   |___/|_|          ");
+    writeln("=====================================");
+    writeln("     Script: Dark Altar Reanimate");
+    writeln("             Version 1.0");
+    writeln("=====================================");
+    writeln("             -[Credits]-");
+    writeln("- @SimonK, @skunkworks13, @Club XJ");
+    writeln("=====================================");
+    writeln("Starting script...");
+    writeln("Banking: " + BankingLocation);
+    writeln("Dark Altar TP: " + DarkAltarTeleportMethod);
+    writeln("Reanimating: " + HeadName);
+
     Login.PlayerIndex                 := 0;
     RSW.Setup('world');
     RSW.AdaptiveWalk := True;
@@ -72,43 +123,41 @@ procedure Init();
     Mouse.Speed                       := Random(15,24);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
     Options.SetZoomLevel(Random(10, 18));
-    Magic.FindSpell(SpellCast, HoverSpell);
-    if (FairyRingStaff = "Dramen staff") then
-    begin
-      Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
+    Magic.FindSpell(Spell, HoverSpell);
+    case FairyRingStaff of
+      'Dramen staff':
+      begin
+        Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
+      end;
+      'Lunar staff':
+      begin
+        Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
+      end;
     end;
-    if (FairyRingStaff = "Lunar staff") then
-    begin
-      Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
-    end;
+
   if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
-
-  if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
-  TSRLBaseRecord.Fatal("Terminating script, player isn't on Arceuus Spell Book");
-
-writeln(" _  ___ _    _    _           _ _    ");
-writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
-writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
-writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
-writeln("                   |___/|_|          ");
-writeln("=====================================");
-writeln("     Script: Dark Altar Reanimate");
-writeln("             Version 1.0");
-writeln("=====================================");
-writeln("             -[Credits]-");
-writeln("- @SimonK, @skunkworks13, @Club XJ");
-writeln("=====================================");
 end;
 
 procedure TAntiban.Setup(); override;
   begin
-    Self.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS, ERSSKILL.DEFENCE,
-                      ERSSKILL.RANGE, ERSSKILL.DEFENCE, ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
+    Self.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
+                    ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
+                    ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
     Self.MinZoom := 2;
     Self.MaxZoom := 18;
     inherited;
   end;
+
+function InFeroxEnclave(): Boolean;
+begin
+  Result := FeroxEnclaveArea.Contains(RSW.GetMyPos());
+end;
+
+function InGE(): Boolean;
+begin
+  Result := GEArea.Contains(RSW.GetMyPos());
+end;
 
 function InCWarsArea(): Boolean;
 begin
@@ -141,6 +190,7 @@ end;
 procedure FailSafe;
 begin
   if chat.FindMessage("have room to", [CHAT_COLOR_BLACK]) then
+  //add logic for world hopping
     terminatescript("=====Can't summon at this spot. Hop worlds and move character.======");
 end;
 
@@ -148,6 +198,7 @@ procedure Banking;
 var
   i : integer;
   RingofDueling := TRSBankItem.Setup('Ring of dueling(8)', 1, False);
+  RingofWealth := TRSBankItem.Setup('Ring of wealth(5)', 1, False);
   ArdougneCloak := TRSBankItem.Setup(ArdyCloak, 1, False);
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
   //FoodNameSTP   := TRSBankItem.Setup(FoodName, 1, False);
@@ -188,7 +239,7 @@ begin
   end;
 
   If Not bank.ContainsItem(Headname) then
-    Terminatescript("Could not find Heads in bank, terminating script.");
+    Terminatescript("Could not find [" + HeadName + "]  in bank, terminating script.");
 
   If not Inventory.ContainsItem("Ring of dueling(1..8)") then
     writeln("Withdrawing 1x Ring of dueling (8)");
@@ -276,8 +327,11 @@ begin
   Waituntil(InMonasteryArea, 500, 7500);
   Transport.Run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
   Waituntil(INZeahArea, 500, 7500);
-  Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
-  Options.SetZoomLevel(Random(2, 12));
+  if (DarkAltarTeleportMethod = "Fairy Ring") then
+  begin
+    Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
+  end;
+  Options.SetZoomLevel(Random(2, 15));
 end;
 
 procedure ToZeah_ArceusLibrary;
@@ -296,9 +350,9 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
   writeln("Teleporting to Castle Wars");
-  for i := 0 to High(ROW) do
+  for i := 0 to High(ROD) do
     begin
-      inventory.ClickItem(ROW[i], 'Castle Wars');
+      inventory.ClickItem(ROD[i], 'Castle Wars');
     end;
   Waituntil(InCWarsArea, 250, 8000);
   CurrentXP := XPBar.Read();
@@ -336,7 +390,7 @@ begin
     waituntil(Mainscreen.IsUpText(Headname), 250, 5500);
     Mouse.click(MOUSE_LEFT);
     Wait(SRL.SkewedRand(4500, 1750, 12500));
-    if  Headcount = 1 then
+    if Headcount = 1 then
       inventory.open()
     else
       Mouse.move(HoverSpell);
@@ -359,9 +413,9 @@ begin
 
     If Minimap.GetHPPercent <= 20 then
     begin
-      for c := 0 to High(ROW) do
+      for c := 0 to High(ROD) do
     begin
-      inventory.ClickItem(ROW[c], 'Castle Wars');
+      inventory.ClickItem(ROD[c], 'Castle Wars');
     end;
       //Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
       Terminatescript("Low health with no food");
