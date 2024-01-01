@@ -22,6 +22,7 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 
 Const
   HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
+  UseProtectionPrayer = True; // Want to use Protection Prayer?
   Usefood = False; // Want to use food?
   FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
   SpellCast = ERSSPELL.EXPERT_REANIMATION; // Summon Spell name
@@ -235,12 +236,12 @@ var
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  Writeln("Banking");
+  Writeln("Time to Bank");
   if not RSClient.IsLoggedIn then exit;
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
     repeat
-      Inventory.Consume(ERSConsumable.FOOD);
+  Inventory.Consume(ERSConsumable.FOOD);
     until (not Minimap.GetHPPercent() <= 85) or (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
 
   if InCWarsArea then
@@ -311,6 +312,9 @@ begin
     end;
 end;
 
+if Usefood = True and not Inventory.ContainsConsumable(ERSConsumable.FOOD) then
+Bank.WithdrawItem(FoodNameSTP, False);
+
 // Bank withdraw of runes depending on the spell used
 case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
@@ -359,19 +363,31 @@ end;
 procedure ToZeah_FairyRing;
 begin
   if not RSClient.IsLoggedIn then exit;
+  if InFeroxEnclave then
+  begin
+    //add pool logic before travel
+  end;
   writeln("Traveling to Zeah using the FairyRing");
   writeln('Teleporting to Ardy Monastary');
   Transport.run(rsteleports.MONASTERY);
   Waituntil(InMonasteryArea, 500, 7500);
   Transport.Run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
   Waituntil(INZeahArea, 500, 7500);
+  if (LumbridgeDiary < 4) then
+  begin
   Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
+  end;
   RSMouseZoom.SetZoomLevel(Random(2, 15));
 end;
 
 procedure ToZeah_ArceusLibrary;
 begin
   if not RSClient.IsLoggedIn then exit;
+  if InFeroxEnclave then
+  begin
+    //add pool logic before travel
+    //Finder.Colors += CTS2(11183966, 11, 0.03, 0.78)
+  end;
   writeln("Traveling to Zeah using the Arceus Library teleport");
   Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
   Waituntil(INZeahArea, 500, 7500);
@@ -390,7 +406,6 @@ begin
       inventory.ClickItem(ROD[i], 'Castle Wars');
     end;
   Waituntil(InCWarsArea, 250, 8000);
-
   end;
 
 procedure ToFeroxEnclave;
@@ -405,7 +420,6 @@ begin
       inventory.ClickItem(ROD[i], 'Ferox Enclave');
     end;
   Waituntil(InCWarsArea, 250, 8000);
-
 end;
 
 procedure ToGE;
@@ -420,7 +434,6 @@ begin
       inventory.ClickItem(ROW[i], 'Castle Wars');
     end;
   Waituntil(InCWarsArea, 250, 8000);
-
   end;
 
 procedure Summon;
@@ -428,11 +441,14 @@ var
   HeadCount, i  : Integer;
   StartXP, c    : Int32;
 begin
-  //writeln("Summon");
   if not RSClient.IsLoggedIn then exit;
   begin
-      WaitUntil(not MainScreen.WaitInCombat(2400), 500, 15000);
-      writeln("Not in combat, starting reanimation");
+  if MainScreen.InCombat then
+  begin
+      writeln("In combat");
+      WaitUntil(not MainScreen.WaitNotInCombat(3400), 500, 15000);
+  end;
+      writeln("Starting reanimation");
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
       HeadCount := Inventory.CountItem(HeadName);
@@ -444,8 +460,26 @@ begin
         Wait(Srl.SkewedRand(500, 300, 1000));
         Mouse.Click(MOUSE_LEFT);
         Waituntil(not Mainscreen.isuptext("Reanimate"), 500, 2000);
-        ToCWars();
-        Waituntil(InCWArsArea, 500, 5000);
+
+        case BankingLocation of
+          'Ferox Enclave':
+          begin
+            ToFeroxEnclave();
+            Waituntil(InFeroxEnclave, 500, 5000);
+          end;
+
+          'Castle Wars':
+          begin
+            ToCWars();
+            Waituntil(InCWArsArea, 500, 5000);
+          end;
+
+          'Grand Exchange':
+          begin
+            ToGE();
+            Waituntil(InGE, 500, 5000);
+          end;
+        end;
         exit;
       end;
 
@@ -468,11 +502,6 @@ begin
     begin
        Inventory.Consume(ERSConsumable.FOOD);
     end;
-
-    {if UseSpec then
-    begin
-      Minimap.EnableSpec(SpecPercent);
-    end;}
 
     If Minimap.GetHPPercent <= 20 then
     begin
@@ -552,12 +581,6 @@ if (not RSClient.IsLoggedIn) then
   end;
 end;
 
-procedure TempDebugger()
-  begin
-    writeln(ArdyCloak);
-    Terminatescript("Done.");
-  end;
-
 begin
 if (not RSClient.IsLoggedIn) then
   begin
@@ -578,5 +601,6 @@ if (not RSClient.IsLoggedIn) then
   begin
     antiban.DoAntiban();
     MainLoop();
+    ScriptReport();
   end;
 end.
