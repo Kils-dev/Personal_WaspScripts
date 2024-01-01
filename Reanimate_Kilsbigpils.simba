@@ -8,9 +8,9 @@
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
                    |___/|_|
     Script: Dark Altar Reanimate
-            Version 1.0
+              Rev. 1.0
             -[Credits]-
-   - @SimonK, @skunkworks, @Club XJ                }
+   - @SimonK, @skunkworks, @Club XJ, @student                }
 
 {--          -- REQ. INFO --           --
  * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS.
@@ -41,7 +41,8 @@ var
   ArdyDiary := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
   ArdyCloak := 'Ardougne cloak ' + ToStr(ArdyDiary);
-  ROD: TRSItemArray = ['Ring of dueling(8)','Ring of dueling(7)','Ring of dueling(6)','Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
+  ROD: TRSItemArray = ['Ring of dueling(8)', 'Ring of dueling(7)', 'Ring of dueling(6)', 'Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
+  ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
 
 Const
   FeroxEnclaveArea : Tbox = [7826, 1813, 8158, 2058];
@@ -83,15 +84,18 @@ end;
 
 procedure Init();
   begin
-  Spell := EnsouledHeadHandler;
+  //Spell := EnsouledHeadHandler;
+  ClearDebug();
+
+  if MainWeapon = 'Unarmed' then
+  Terminatescript("No weapon equiped. Please make sure to equip your player before starting the script");
 
   if Spell = ERSSPELL.UNKNOWN then
-  Terminatescript("Unkown Head name, make sure to type it correctly");
+  Terminatescript("Unknown Head name, make sure to type it correctly");
 
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   Terminatescript("Player isn't on Arceuus Spell Book");
 
-    ClearDebug();
     writeln(" _  ___ _    _    _           _ _    ");
     writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
     writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
@@ -99,15 +103,15 @@ procedure Init();
     writeln("                   |___/|_|          ");
     writeln("=====================================");
     writeln("     Script: Dark Altar Reanimate");
-    writeln("             Version 1.0");
+    writeln("              Rev. 1.0");
     writeln("=====================================");
     writeln("             -[Credits]-");
-    writeln("- @SimonK, @skunkworks13, @Club XJ");
+    writeln("- @SimonK, @Skunkworks, @Club XJ, @Student");
     writeln("=====================================");
     writeln("Starting script...");
-    writeln("Banking: " + BankingLocation);
-    writeln("Dark Altar TP: " + DarkAltarTeleportMethod);
-    writeln("Reanimating: " + HeadName);
+    writeln("Banking location: " + BankingLocation);
+    writeln("Dark Altar Teleport: " + DarkAltarTeleportMethod);
+    writeln("Will reanimate: " + HeadName);
 
     Login.PlayerIndex                 := 0;
     RSW.Setup('world');
@@ -119,28 +123,28 @@ procedure Init();
     WLSettings.RemoteInput.BlockInput := False;
     WLsettings.Antiban.GameTabs       := False;
     WLsettings.Antiban.Chat           := False;
-    WL.GameSettings.XPBarIsSetup      := True;
-    WL.XP.IsSetup                     := True;
     WLsettings.Antiban.GameTabs       := False;
     WLsettings.Antiban.Chat           := False;
+    WL.GameSettings.XPBarIsSetup      := True;
+    WL.XP.IsSetup                     := True;
     Mouse.MissChance                  := Random(14, 23);
     Mouse.Speed                       := Random(15,24);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
-    Options.SetZoomLevel(Random(10, 18));
-    Magic.FindSpell(Spell, HoverSpell);
+    RSMouseZoom.SetZoomLevel(Random(10, 18));
+    Magic.FindSpell(EnsouledHeadHandler, HoverSpell);
     case FairyRingStaff of
       'Dramen staff':
-      begin
         Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
-      end;
+
       'Lunar staff':
-      begin
         Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
-      end;
     end;
+
+    Combat.SetAutoRetaliate(True);
 
   if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
+
 end;
 
 procedure TAntiban.Setup(); override;
@@ -201,8 +205,9 @@ end;
 procedure Banking;
 var
   i : integer;
+
   RingofDueling := TRSBankItem.Setup('Ring of dueling(8)', 1, False);
-  RingofWealth := TRSBankItem.Setup('Ring of wealth(5)', 1, False);
+  RingofWealth  := TRSBankItem.Setup('Ring of wealth(5)', 1, False);
   ArdougneCloak := TRSBankItem.Setup(ArdyCloak, 1, False);
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
   //FoodNameSTP   := TRSBankItem.Setup(FoodName, 1, False);
@@ -219,16 +224,38 @@ begin
   Writeln("Banking");
   if not RSClient.IsLoggedIn then exit;
 
-  //If  (Minimap.GetHPPercent() <= 90) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
-    //repeat
-  //Inventory.Consume(ERSConsumable.FOOD);
-    //until (not Minimap.GetHPPercent() <= 90) or  (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
+  If  (Minimap.GetHPPercent() <= 90) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
+    repeat
+  Inventory.Consume(ERSConsumable.FOOD);
+    until (not Minimap.GetHPPercent() <= 90) or  (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
 
-  RSW.WebWalk([5164, 4115], 5, 0.1);
-  wait(SRL.SkewedRand(500, 250, 1500));
-  Bank.open(ERSBANKLOCATION.CASTLE_WARS);
-  wait(SRL.SkewedRand(750, 500, 1500));
+  if InCWarsArea then
+  begin
+    RSW.WebWalk([5164, 4115], 5, 0.1);
+    wait(SRL.SkewedRand(500, 250, 1500));
+    Bank.open(ERSBANKLOCATION.CASTLE_WARS);
+    wait(SRL.SkewedRand(750, 500, 1500));
+  end;
 
+  if InFeroxEnclave then
+  begin
+  // Change code bellow
+    RSW.WebWalk([5164, 4115], 5, 0.1);
+    wait(SRL.SkewedRand(500, 250, 1500));
+    Bank.open(ERSBANKLOCATION.FEROX);
+    wait(SRL.SkewedRand(750, 500, 1500));
+  end;
+
+  if InGE then
+  begin
+    // Change code bellow
+    RSW.WebWalk([5164, 4115], 5, 0.1);
+    wait(SRL.SkewedRand(500, 250, 1500));
+    Bank.open(ERSBANKLOCATION.GRAND_EXCHANGE);
+    wait(SRL.SkewedRand(750, 500, 1500));
+  end;
+
+     // Change code logic START //
   if not bank.isopen then
   begin
     for i:=1 to 25 do
@@ -241,6 +268,7 @@ begin
       Inc(i);
     end;
   end;
+     // Change code logic END //
 
   If Not bank.ContainsItem(Headname) then
     Terminatescript("Could not find [" + HeadName + "]  in bank, terminating script.");
@@ -262,9 +290,9 @@ begin
       if (LumbridgeDiary < 4) then
       begin
         if not Inventory.ContainsItem(FairyRingStaff) then
-          writeln("Player does not have the Elite Lumbridge Diary Done");
-        writeln("Withdrawing 1x " + FairyRingStaff);
-        Bank.WithdrawItem(FairyRStaff, False);
+          writeln("Player has not completed the Elite Lumbridge Diary");
+          writeln("Withdrawing 1x " + FairyRingStaff);
+          Bank.WithdrawItem(FairyRStaff, False);
       end;
     end;
 
@@ -279,7 +307,7 @@ begin
 end;
 
 // Bank withdraw of runes depending on the spell used
-case SpellCast of
+case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
     begin
       if Inventory.CountItemStack("Body rune") <= 100 then
@@ -308,8 +336,10 @@ end;
   If Inventory.CountItemStack("Nature rune") <= 50 then
     Bank.WithdrawItem(Naturerune, False);
 
+     // Add logic for custom food instead of generic ERSConsumable.FOOD //
   //If not inventory.HasEnoughConsumable(ERSConsumable.FOOD) then
-    //Bank.WithdrawConsumable(ERSConsumable.FOOD);
+  //Bank.WithdrawConsumable(ERSConsumable.FOOD);
+     // Add logic for custom food instead of generic ERSConsumable.FOOD //
 
   If not Inventory.CountItem(HeadName) then
   begin
@@ -327,15 +357,11 @@ begin
   writeln("Traveling to Zeah using the FairyRing");
   writeln('Teleporting to Ardy Monastary');
   Transport.run(rsteleports.MONASTERY);
-  //inventory.ClickItem(ArdyCloak, 'Monastery Teleport');
   Waituntil(InMonasteryArea, 500, 7500);
   Transport.Run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
   Waituntil(INZeahArea, 500, 7500);
-  if (DarkAltarTeleportMethod = "Fairy Ring") then
-  begin
-    Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
-  end;
-  Options.SetZoomLevel(Random(2, 15));
+  Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
+  RSMouseZoom.SetZoomLevel(Random(2, 15));
 end;
 
 procedure ToZeah_ArceusLibrary;
@@ -348,7 +374,6 @@ end;
 
 procedure ToCwars;
 var
-  CurrentXP : Int32;
   i: Int32;
 
 begin
@@ -359,10 +384,38 @@ begin
       inventory.ClickItem(ROD[i], 'Castle Wars');
     end;
   Waituntil(InCWarsArea, 250, 8000);
-  CurrentXP := XPBar.Read();
-  Writeln('Made ', (CurrentXP - StartXP), ' EXP since we started');
-  Writeln('Currently making ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR hour');
+
+  end;
+
+procedure ToFeroxEnclave;
+var
+  i: Int32;
+
+begin
+  if not RSClient.IsLoggedIn then exit;
+  writeln("Teleporting to Ferox Enclave");
+  for i := 0 to High(ROD) do
+    begin
+      inventory.ClickItem(ROD[i], 'Ferox Enclave');
+    end;
+  Waituntil(InCWarsArea, 250, 8000);
+
 end;
+
+procedure ToGE;
+var
+  i: Int32;
+
+begin
+  if not RSClient.IsLoggedIn then exit;
+  writeln("Teleporting to the Grand Exchange");
+  for i := 0 to High(ROW) do
+    begin
+      inventory.ClickItem(ROW[i], 'Castle Wars');
+    end;
+  Waituntil(InCWarsArea, 250, 8000);
+
+  end;
 
 procedure Summon;
 var
@@ -374,7 +427,7 @@ begin
   begin
       WaitUntil(not MainScreen.WaitInCombat(2400), 500, 15000);
       writeln("Not in combat, starting reanimation");
-      Magic.CastSpell(Spellcast);
+      Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
       HeadCount := Inventory.CountItem(HeadName);
       //writeln(IntToStr(HeadCount));
@@ -440,8 +493,12 @@ begin
 end;
 
 procedure ScriptReport()
+var
+  CurrentXP : Int32;
 begin
-writeln("Nothing");
+  CurrentXP := XPBar.Read();
+  Writeln('Made ', (CurrentXP - StartXP), ' EXP since we started');
+  Writeln('Currently making ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR hour');
 end;
 
 procedure MainLoop;
@@ -464,19 +521,19 @@ if (not RSClient.IsLoggedIn) then
       exit;
     end;
 
-  If InCWarsArea and (not Inventory.ContainsItem(HeadName)) then
+  If InCWarsArea or InFeroxEnclave or InGE and (not Inventory.ContainsItem(HeadName)) then
   begin
     Banking();
     exit;
   end;
 
-  if InCwarsArea and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
+  if InCwarsArea or InFeroxEnclave or InGE and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
   begin
     ToZeah_FairyRing();
     exit;
   end;
 
- If InCwarsArea and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
+ If InCwarsArea or InFeroxEnclave or InGE and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
   begin
     ToZeah_ArceusLibrary();
     exit;
@@ -507,6 +564,10 @@ if (not RSClient.IsLoggedIn) then
 
 //TempDebugger();
   Init();
+  if not InCwarsArea or InFeroxEnclave or InGE then
+  Terminatescript("Please make sure you are in either the Ferox Enclave,
+  Castle Wars or the Grand Exchange before starting the script");
+
   while true do
   begin
     antiban.DoAntiban();
