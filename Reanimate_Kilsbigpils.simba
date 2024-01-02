@@ -10,7 +10,7 @@
     Script: Dark Altar Reanimate
               Rev. 1.0
             -[Credits]-
-- @SimonK, @Skunkworks, @Club XJ, @Student                }
+- @SimonK, @Skunkworks, @Club XJ, @Student     }
 
 {--          -- REQ. INFO --           --
  * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS.
@@ -22,13 +22,16 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 
 Const
   HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
+
   UseProtectionPrayer = True; // Want to use Protection Prayer?
   Usefood = False; // Want to use food?
   FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
-  SpellCast = ERSSPELL.EXPERT_REANIMATION; // Summon Spell name
+
+  BankingLocation = "Castle Wars"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
   DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
   FairyRingStaff = "Dramen staff"; // "Dramen staff" or "Lunar staff"
-  BankingLocation = "Castle Wars"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
+
+  ExperimentalSummonSpot = True; // *WARNING* This is a test feature, report issues if using it
 
 {.............-= [SETTINGS END] =-.............}
 
@@ -52,6 +55,7 @@ Const
   CWarsArea        : Tbox = [5136, 4056, 5173, 4120];
   ZeahArea         : TBox = [1854, 899, 2263, 1139];
   GEArea           : Tbox = [7780, 2300, 8400, 2950];
+  ExperimentalSpot : Tbox = [2188, 940];
   InvBox           : TBox = [629, 170, 655, 200];
   SummonSpots      : TPointArray = [[2188, 940], [2184, 940], [2180, 940], [2176, 940],
                                     [2172, 940], [2180, 944], [2184, 944], [2160, 948],
@@ -444,10 +448,15 @@ begin
   if not RSClient.IsLoggedIn then exit;
   begin
   if MainScreen.InCombat then
-  begin
+    begin
       writeln("In combat");
+      PrayerProtectionHandler(true);
       WaitUntil(not MainScreen.WaitNotInCombat(3400), 500, 15000);
-  end;
+    end;
+  if MainScreen.InCombat then
+    begin
+    PrayerProtectionHandler(false);
+    end;
       writeln("Starting reanimation");
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
