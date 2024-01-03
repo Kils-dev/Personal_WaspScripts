@@ -13,17 +13,17 @@
 - @SimonK, @Skunkworks, @Club XJ, @Student     }
 
 {--          -- REQ. INFO --           --
- * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS.
+ * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
  * Make sure to already have your armour + weapon equiped before starting.
  * Check the official OSRS Wiki for more info:
 https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads   }
 
-{............-= [SETTINGS START] =-............}
+{............-= [   -SETTINGS START-   ] =-............}
 
 Const
   HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
 
-  UseProtectionPrayer = True; // Want to use Protection Prayer?
+  UseProtectionPrayer = True; // Want to use Protection Prayers?
   Usefood = False; // Want to use food?
   FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
 
@@ -33,26 +33,25 @@ Const
 
   ExperimentalSummonSpot = True; // *WARNING* This is a test feature
 
-{.............-= [SETTINGS END] =-.............}
+{.............-= [   -SETTINGS END-   ] =-.............}
 
 var
-  RSW            :  TRSWalker;
-  Transport      :  TUniversalTransport;
-  HoverSpell     :  TBox;
-  Spell          :  ERSSpell;
-  StartXP        :  Int32;
-  MainWeapon     := Combat.GetWeapon();
-  PrayerLevel    := Prayer.GetPrayerLevel();
-  ArdyDiary      := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
-  LumbridgeDiary := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
-  ArdyCloak      := 'Ardougne cloak ' + ToStr(ArdyDiary);
+  RSW              :  TRSWalker;
+  Transport        :  TUniversalTransport;
+  HoverSpell       :  TBox;
+  StartXP          :  Int32;
+  MainWeapon       := Combat.GetWeapon();
+  PrayerLevel      := Prayer.GetPrayerLevel();
+  ArdyDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
+  LumbridgeDiary   := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
+  ArdyCloak        := 'Ardougne cloak ' + ToStr(ArdyDiary);
   ROD: TRSItemArray = ['Ring of dueling(8)', 'Ring of dueling(7)', 'Ring of dueling(6)', 'Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
   ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
 
 Const
   FeroxEnclaveArea : Tbox = [7826, 1813, 8158, 2058];
   MonasteryArea    : TBox = [5697, 3478, 6092, 3660];
-  SummonArea       : Tbox = [2061, 916, 22238, 968];
+  SummonArea       : Tbox = [2052, 885, 2321, 976];
   CWarsArea        : Tbox = [5136, 4056, 5173, 4120];
   ZeahArea         : TBox = [1854, 899, 2263, 1139];
   GEArea           : Tbox = [7780, 2300, 8400, 2950];
@@ -87,7 +86,7 @@ begin
   end;
 end;
 
-function PrayerProtectionHandler: Boolean;
+function PrayerProtectionHandler: String;
 begin
   case HeadName of
   'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
@@ -97,12 +96,27 @@ begin
   'Ensouled horror head', 'Ensouled kalphite head', 'Ensouled bloodveld head',
   'Ensouled tzhaar head', 'Ensouled demon head', 'Ensouled hellhound head',
   'Ensouled aviansie head', 'Ensouled abyssal head', 'Ensouled dragon head':
-  result := Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+  result := "Melee";
 
   'Ensouled dagannoth head':
-  result := Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MISSILES);
+  result := "Range";
   end;
 end;
+
+// TEMP UNTIL TORWENT ACCEPTS THE PUSH COMMIT ON SRL-T
+function TRSPrayer.DisablePrayer(Prayer: ERSPrayer): Boolean;
+begin
+  if not Self.Open or not Self.CanActivate(Prayer) then
+    Exit(False);
+
+  if not Self.IsPrayerActive(Prayer) then
+    Exit(True);
+
+  Mouse.Click(Self.GetPrayerBox(Prayer), MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsPrayerActive(Prayer), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+// TEMP UNTIL TORWENT ACCEPTS THE PUSH COMMIT ON SRL-T
 
 procedure Init();
   begin
@@ -111,8 +125,8 @@ procedure Init();
   if MainWeapon = 'Unarmed' then
   Terminatescript("No weapon equiped. Please make sure to equip your player before starting the script");
 
-  if Spell = ERSSPELL.UNKNOWN then
-  Terminatescript("Unknown Head name, make sure to type it correctly");
+  if EnsouledHeadHandler = ERSSPELL.UNKNOWN then
+  Terminatescript("Unknown head name, make sure to type it correctly");
 
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   Terminatescript("Player isn't on Arceuus Spell Book");
@@ -133,6 +147,7 @@ procedure Init();
     writeln("Banking location: " + BankingLocation);
     writeln("Dark Altar Teleport: " + DarkAltarTeleportMethod);
     writeln("Will reanimate: " + HeadName);
+    writeln("Using Protection Prayers? " + toSTR(UseProtectionPrayer));
 
     Login.PlayerIndex                 := 0;
     RSW.Setup('world');
@@ -208,20 +223,19 @@ begin
   Result := SummonArea.Contains(RSW.GetMyPos());
 end;
 
-procedure WalkToSummon; // Inside of Zeah
+procedure WalkToSummon;
 begin
-  if not RSClient.IsLoggedIn then exit; //maybe remove later
+  if not RSClient.IsLoggedIn then exit;
   if ExperimentalSummonSpot = true then
   begin
-  Writeln("Walking to the Summoning Area");
-  RSW.WebWalk([2214, 905], 25, 0.8);
+  Writeln("Walking to the Summoning Spot (Experimental)");
+  RSW.WebWalk([2214, 905], 25, 0.5);
   RSW.WebWalk([2214, 920], 25, 0);
   end
   else
   begin
   Writeln("Walking to the Summoning Area");
   RSW.WebWalk(SummonSpots.RandomValue, 25, 0.9);
-  //RSW.WebWalk(SummonSpots[random(Low(SummonSpots), High(SummonSpots))], 25, 0.8);
   end;
 end;
 
@@ -294,7 +308,7 @@ begin
   end;
 
   If Not bank.ContainsItem(Headname) then
-    Terminatescript("Could not find [" + HeadName + "] in bank, terminating script.");
+    Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
 
   // DarkAltarTeleportMethod handler
   case DarkAltarTeleportMethod of
@@ -309,7 +323,7 @@ begin
       if (LumbridgeDiary < 4) then
       begin
         if not Inventory.ContainsItem(FairyRingStaff) then
-          writeln("Player has not completed the Elite Lumbridge Diary");
+          writeln("Player has not completed the Elite Lumbridge Diary.");
           writeln("Withdrawing 1x " + FairyRingStaff);
           Bank.WithdrawItem(FairyRStaff, False);
       end;
@@ -325,8 +339,8 @@ begin
     end;
 end;
 
-if Usefood = True and not Inventory.ContainsConsumable(ERSConsumable.FOOD) then
-Bank.WithdrawItem(FoodNameSTP, False);
+if (Usefood = True) and not Inventory.ContainsConsumable(ERSConsumable.FOOD) then
+  Bank.WithdrawItem(FoodNameSTP, False);
 
 // Bank withdraw of runes depending on the spell used
 case EnsouledHeadHandler of
@@ -379,6 +393,7 @@ begin
   if InFeroxEnclave then
   begin
     //add pool logic before travel
+    //Finder.Colors += CTS2(11183966, 11, 0.03, 0.78)
   end;
   writeln("Traveling to Zeah using the FairyRing");
   writeln('Teleporting to Ardy Monastary');
@@ -449,23 +464,67 @@ begin
   Waituntil(InCWarsArea, 250, 8000);
   end;
 
+procedure BankLocationHandler;
+begin
+  case BankingLocation of
+          'Ferox Enclave':
+          begin
+            ToFeroxEnclave();
+            Waituntil(InFeroxEnclave, 500, 4300);
+          end;
+
+          'Castle Wars':
+          begin
+            ToCWars();
+            Waituntil(InCWArsArea, 500, 4300);
+          end;
+
+          'Grand Exchange':
+          begin
+            ToGE();
+            Waituntil(InGE, 500, 4300);
+          end;
+        end;
+end;
+
 procedure Summon;
 var
   HeadCount, i  : Integer;
-  StartXP, c    : Int32;
+  StartXP    : Int32;
 begin
   if not RSClient.IsLoggedIn then exit;
   begin
+
   if MainScreen.InCombat then
     begin
       writeln("In combat");
-      PrayerProtectionHandler(); // check alternative later | TRUE
+    if (PrayerLevel >= 40) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Ranged") then //recheck this again later
+      begin
+      // check later | TRUE
+      Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
+      end;
+    if (PrayerLevel >= 43) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Melee") then //recheck this again later
+      begin
+      // check later | TRUE
+      Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
+      end;
       WaitUntil(not MainScreen.WaitNotInCombat(3400), 500, 15000);
     end;
-  if MainScreen.InCombat then
+
+   if not MainScreen.InCombat then
     begin
-    PrayerProtectionHandler(); // check alternative later | FALSE
-    end;
+      if (PrayerLevel >= 40) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Ranged") then //recheck this again later
+        begin
+          // check later | False, after push use [ERSPrayer.PROTECT_FROM_MISSILES]
+          Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MISSILES);
+        end;
+      if (PrayerLevel >= 43) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Melee") then //recheck this again later
+        begin
+          // check later | False, after push use [ERSPrayer.PROTECT_FROM_MELEE]
+          Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+        end;
+     end;
+
       writeln("Starting reanimation");
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
@@ -478,8 +537,8 @@ begin
         Wait(Srl.SkewedRand(500, 300, 1000));
         Mouse.Click(MOUSE_LEFT);
         Waituntil(not Mainscreen.isuptext("Reanimate"), 500, 2000);
-
-        case BankingLocation of
+        BankLocationHandler;
+        {case BankingLocation of
           'Ferox Enclave':
           begin
             ToFeroxEnclave();
@@ -497,7 +556,7 @@ begin
             ToGE();
             Waituntil(InGE, 500, 5000);
           end;
-        end;
+        end;}
         exit;
       end;
 
@@ -511,7 +570,7 @@ begin
       Mouse.move(HoverSpell);
   end;
 
-  //battle begin
+  //battle begin - verify this again later
   StartXP := XPBar.read;
 
   For i to 80 do
@@ -521,14 +580,11 @@ begin
        Inventory.Consume(ERSConsumable.FOOD);
     end;
 
-    If Minimap.GetHPPercent <= 20 then
+    If Minimap.GetHPPercent <= 25 then
     begin
-      for c := 0 to High(ROD) do
-    begin
-      inventory.ClickItem(ROD[c], 'Castle Wars');
-    end;
+      BankLocationHandler;
       //Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
-      Terminatescript("Low health with no food");
+      //Terminatescript("Low health with no food"); Check again later
     end;
 
     If Startxp <> XPBar.read then
@@ -538,8 +594,8 @@ begin
 
   if (HeadCount = 1) then
     begin
-      writeln("Head count is 1, going to Castle Wars");
-      toCwars();
+      writeln("Head count is 1, going to Bank");
+      BankLocationHandler;
       exit();
   end;
   exit;
