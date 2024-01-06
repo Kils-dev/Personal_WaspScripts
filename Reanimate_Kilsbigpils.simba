@@ -1,3 +1,4 @@
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '1'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/osr/handlers/teleports/transport.simba}
@@ -8,14 +9,14 @@
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
                    |___/|_|
     Script: Dark Altar Reanimate
-              Rev. 1.0
+              Rev. 1
             -[Credits]-
-- @SimonK, @Skunkworks, @Club XJ, @Student     }
+- @SimonK, @Skunkworks, @Club XJ, @Student, @sebastiaan    }
 
 {--          -- REQ. INFO --           --
- * Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
- * Make sure to already have your armour + weapon equiped before starting.
- * Check the official OSRS Wiki for more info:
+ *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
+ *- Make sure to already have your armour + weapon equiped before starting.
+ *- Check the official OSRS Wiki for more info:
 https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads   }
 
 {............-= [   -SETTINGS START-   ] =-............}
@@ -40,13 +41,15 @@ var
   Transport        :  TUniversalTransport;
   HoverSpell       :  TBox;
   StartXP          :  Int32;
+  HeadCountRep     :  Int32;
   MainWeapon       := Combat.GetWeapon();
   PrayerLevel      := Prayer.GetPrayerLevel();
   ArdyDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary   := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
   ArdyCloak        := 'Ardougne cloak ' + ToStr(ArdyDiary);
-  ROD: TRSItemArray = ['Ring of dueling(8)', 'Ring of dueling(7)', 'Ring of dueling(6)', 'Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
-  ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
+  SciptVer         := 'Rev '+{$MACRO SCRIPT_REVISION};
+  //ROD: TRSItemArray = ['Ring of dueling(8)', 'Ring of dueling(7)', 'Ring of dueling(6)', 'Ring of dueling(5)', 'Ring of dueling(4)', 'Ring of dueling(3)', 'Ring of dueling(2)', 'Ring of dueling(1)'];
+  //ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
 
 Const
   FeroxEnclaveArea : Tbox = [7773, 1811, 8167, 2075];
@@ -117,6 +120,19 @@ begin
   Result := WaitUntil(not Self.IsPrayerActive(Prayer), 50, SRL.TruncatedGauss(1000, 2000));
 end;
 // TEMP UNTIL TORWENT ACCEPTS THE PUSH COMMIT ON SRL-T
+procedure UselessBloatinc;
+begin
+  writeln("=====================================");
+  writeln(" _  ___ _    _    _           _ _    ");
+  writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
+  writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
+  writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
+  writeln("                   |___/|_|          ");
+  writeln("====================================");
+  writeln("   Kilsbigpils Dark Altar Reanimate");
+  writeln("|               Rev. ",SciptVer,"              |");
+  writeln("=====================================");
+end;
 
 procedure Init();
   begin
@@ -129,21 +145,12 @@ procedure Init();
   Terminatescript("Unknown head name, make sure to type it correctly");
 
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
-  Terminatescript("Player isn't on Arceuus Spell Book");
+  Terminatescript("Player isn't on Arceuus Spell Book, make sure to change to it before starting the script");
 
-    writeln(" _  ___ _    _    _           _ _    ");
-    writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
-    writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
-    writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
-    writeln("                   |___/|_|          ");
-    writeln("=====================================");
-    writeln("     Script: Dark Altar Reanimate");
-    writeln("              Rev. 1.0");
-    writeln("=====================================");
+    UselessBloatinc;
     writeln("             -[Credits]-");
-    writeln("- @SimonK, @Skunkworks, @Club XJ, @Student");
+    writeln("- @SimonK, @Skunkworks, @Club XJ, @Student, @sebastiaan");
     writeln("=====================================");
-    writeln("Starting script...");
     writeln("Banking location: " + BankingLocation);
     writeln("Dark Altar Teleport: " + DarkAltarTeleportMethod);
     writeln("Will reanimate: " + HeadName);
@@ -250,8 +257,9 @@ end;
 procedure WalkToSummon;
 begin
   if not RSClient.IsLoggedIn then exit;
-  if (ExperimentalSummonSpot = true) then
+  if ExperimentalSummonSpot then
   begin
+  HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
   Writeln("Walking to the Summoning Spot (Experimental)");
   RSW.WebWalk([2214, 905], 25, 0.5);
   RSW.WebWalk([2214, 920], 25, 0);
@@ -369,7 +377,7 @@ begin
     end;
 end;
 
-if (Usefood = True) and not Inventory.ContainsConsumable(ERSConsumable.FOOD) then
+if Usefood and not(Inventory.ContainsConsumable(ERSConsumable.FOOD)) then
   Bank.WithdrawItem(FoodNameSTP, False);
 
 // Bank withdraw of runes depending on the spell used
@@ -455,44 +463,47 @@ begin
 end;
 
 procedure ToCwars;
-var
-  i: Int32;
+{var
+  i: Int32;}
 
 begin
   if not RSClient.IsLoggedIn then exit;
   writeln("Teleporting to Castle Wars");
-  for i := 0 to High(ROD) do
+  {for i := 0 to High(ROD) do
     begin
       inventory.ClickItem(ROD[i], 'Castle Wars');
-    end;
+    end;}
+  Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
   Waituntil(InCWarsArea, 250, 8000);
   end;
 
 procedure ToFeroxEnclave;
-var
-  i: Int32;
+{var
+  i: Int32;}
 
 begin
   if not RSClient.IsLoggedIn then exit;
   writeln("Teleporting to Ferox Enclave");
-  for i := 0 to High(ROD) do
+ { for i := 0 to High(ROD) do
     begin
       inventory.ClickItem(ROD[i], 'Ferox Enclave');
-    end;
+    end;}
+  Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
   Waituntil(InFeroxEnclave, 250, 8000);
 end;
 
 procedure ToGE;
-var
-  i: Int32;
+{var
+  i: Int32;}
 
 begin
   if not RSClient.IsLoggedIn then exit;
   writeln("Teleporting to the Grand Exchange");
-  for i := 0 to High(ROW) do
+  {for i := 0 to High(ROW) do
     begin
       inventory.ClickItem(ROW[i], 'Grand Exchange');
-    end;
+    end;}
+  Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
   Waituntil(InGE, 250, 8000);
   end;
 
@@ -529,21 +540,23 @@ begin
 
   if MainScreen.InCombat then
     begin
-      writeln("In combat");
-    if (PrayerLevel >= 40) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Ranged') then //recheck this again later
+     if UseProtectionPrayer then
+    begin
+     if (PrayerLevel >= 40) and (PrayerProtectionHandler = 'Ranged') then //recheck this again later
       begin
-      // check later | TRUE
-      writeln("Ranged Prayer Activated");
-      Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
+        // check later | TRUE
+        writeln("Ranged Prayer Activated");
+        Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
       end;
-    if (PrayerLevel >= 43) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Melee') then //recheck this again later
+     if (PrayerLevel >= 43) and (PrayerProtectionHandler = 'Melee') then
       begin
-      // check later | TRUE
-      writeln("Melee Prayer Activated");
-      Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
+        // check later | TRUE
+        writeln("Melee Prayer Activated");
+        Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
       end;
+     end;
       WaitUntil(not MainScreen.WaitNotInCombat(3400), 500, 15000);
-    end;
+     end;
 
    if not MainScreen.InCombat then
     begin
@@ -565,6 +578,7 @@ begin
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
       HeadCount := Inventory.CountItem(HeadName);
+
       if not inventory.ContainsItem(HeadName) then
       begin
         Wait(SRL.SkewedRand(750, 500, 6000));
@@ -591,19 +605,19 @@ begin
 
   For i to 80 do
   begin
-    If Minimap.GetHPPercent <= 67 then
+    if Minimap.GetHPPercent <= 67 then
     begin
        Inventory.Consume(ERSConsumable.FOOD);
     end;
 
-    If Minimap.GetHPPercent <= 25 then
+    if Minimap.GetHPPercent <= 25 then
     begin
       BankLocationHandler;
       //Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
       //Terminatescript("Low health with no food"); Check again later
     end;
 
-    If Startxp <> XPBar.read then
+    if Startxp <> XPBar.read then
       Break;
     wait(random(500, 650));
   end;                    // battle end
@@ -622,8 +636,12 @@ var
   CurrentXP : Int32;
 begin
   CurrentXP := XPBar.Read();
-  Writeln('Made ', (CurrentXP - StartXP), ' EXP since we started');
-  Writeln('Currently making ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR hour');
+  UselessBloatinc;
+  writeln('Reanimated: ', HeadCountRep, 'heads');
+  writeln('Made: ', (CurrentXP - StartXP), 'EXP');
+  writeln('Currently making: ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR hour');
+  If SRL.dice(51 then // Yoink from the roo man, made by student also
+  WriteLn('Seb still has no mole pet KEKW');
 end;
 
 procedure MainLoop;
