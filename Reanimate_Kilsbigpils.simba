@@ -27,11 +27,11 @@ Const
   Usefood = False; // Want to use food?
   FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
 
-  BankingLocation = "Castle Wars"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
+  BankingLocation = "Ferox Enclave"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
   DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
   FairyRingStaff = "Dramen staff"; // "Dramen staff" or "Lunar staff"
 
-  ExperimentalSummonSpot = True; // *WARNING* This is a test feature
+  ExperimentalSummonSpot = True; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
@@ -49,7 +49,7 @@ var
   ROW: TRSItemArray = ['Ring of wealth(5)', 'Ring of wealth(4)', 'Ring of wealth(3)', 'Ring of wealth(2)', 'Ring of wealth(1)'];
 
 Const
-  FeroxEnclaveArea : Tbox = [7826, 1813, 8158, 2058];
+  FeroxEnclaveArea : Tbox = [7773, 1811, 8167, 2075];
   MonasteryArea    : TBox = [5697, 3478, 6092, 3660];
   SummonArea       : Tbox = [2052, 885, 2321, 976];
   CWarsArea        : Tbox = [5136, 4056, 5173, 4120];
@@ -99,7 +99,7 @@ begin
   result := "Melee";
 
   'Ensouled dagannoth head':
-  result := "Range";
+  result := "Ranged";
   end;
 end;
 
@@ -189,7 +189,7 @@ procedure TAntiban.Setup(); override;
                     ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                     ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
     Self.MinZoom := 2;
-    Self.MaxZoom := 18;
+    Self.MaxZoom := 24;
     inherited;
   end;
 
@@ -223,10 +223,34 @@ begin
   Result := SummonArea.Contains(RSW.GetMyPos());
 end;
 
+procedure FeroxPoolHandler;
+var
+B                : TBox;
+MSRect           : TRectangle;
+PoolFinder       : TRSObjectFinder;
+Pool             : T2DPointArray;
+
+begin
+    PoolFinder.Colors += CTS2(11183966, 11, 0.03, 0.78);
+    PoolFinder.ClusterDistance := 5;
+    MSRect := Minimap.PointToMsRect((Minimap.Center), 15, 15);
+    B := MSRect.Bounds;
+    B.LimitTo(Mainscreen.Bounds);
+    Pool := MainScreen.FindObject(PoolFinder, B);
+    Pool.SortBySize();
+    Mouse.move(Pool[0].RandomValue);
+    if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
+    begin
+    repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
+      Wait(SRL.SkewedRand(6300, 5500, 7000));
+      Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
+    end;
+end;
+
 procedure WalkToSummon;
 begin
   if not RSClient.IsLoggedIn then exit;
-  if ExperimentalSummonSpot = true then
+  if (ExperimentalSummonSpot = true) then
   begin
   Writeln("Walking to the Summoning Spot (Experimental)");
   RSW.WebWalk([2214, 905], 25, 0.5);
@@ -268,7 +292,7 @@ begin
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
     repeat
-  Inventory.Consume(ERSConsumable.FOOD);
+      Inventory.Consume(ERSConsumable.FOOD);
     until (not Minimap.GetHPPercent() <= 85) or (not Inventory.ContainsConsumable(ERSConsumable.FOOD));
 
   if InCWarsArea then
@@ -279,20 +303,25 @@ begin
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
     If not Inventory.ContainsItem("Ring of dueling(1..8)") then
-      writeln("Withdrawing 1x Ring of dueling (8)");
+    begin
+      writeln("Withdrawing 1x Ring of dueling(8)");
       Bank.WithdrawItem(RingofDueling, False);
+    end;
   end;
 
   if InFeroxEnclave then
   begin
-    RSW.WebWalk([7932, 1933], 5, 0.1);
+    RSW.WebWalk([7914, 1924], 5, 0.1);
     wait(SRL.SkewedRand(500, 250, 1500));
+    RSMouseZoom.SetZoomLevel(Random(44, 52));
     repeat Bank.open(ERSBANKLOCATION.FEROX);
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
     If not Inventory.ContainsItem("Ring of dueling(1..8)") then
-      writeln("Withdrawing 1x Ring of dueling (8)");
+    begin
+      writeln("Withdrawing 1x Ring of dueling(8)");
       Bank.WithdrawItem(RingofDueling, False);
+    end;
   end;
 
   if InGE then
@@ -303,12 +332,11 @@ begin
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
     If not Inventory.ContainsItem("Ring of wealth(1..5)") then
-      writeln("Withdrawing 1x Ring of wealth (5)");
+    begin
+      writeln("Withdrawing 1x Ring of wealth(5)");
       Bank.WithdrawItem(RingofWealth, False);
+    end;
   end;
-
-  If Not bank.ContainsItem(Headname) then
-    Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
 
   // DarkAltarTeleportMethod handler
   case DarkAltarTeleportMethod of
@@ -323,9 +351,11 @@ begin
       if (LumbridgeDiary < 4) then
       begin
         if not Inventory.ContainsItem(FairyRingStaff) then
+        begin
           writeln("Player has not completed the Elite Lumbridge Diary.");
           writeln("Withdrawing 1x " + FairyRingStaff);
           Bank.WithdrawItem(FairyRStaff, False);
+        end;
       end;
     end;
 
@@ -377,7 +407,11 @@ end;
   //Bank.WithdrawConsumable(ERSConsumable.FOOD);
      // Add logic for custom food instead of generic ERSConsumable.FOOD //
 
-  If not Inventory.CountItem(HeadName) then
+     //check this later again
+  //If not bank.ContainsItem(Headname) then
+  //Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
+
+  If not Inventory.ContainsItem(HeadName) then
   begin
     Bank.WithdrawItem(EnsouledHead, False);
     waituntil(Inventory.ContainsItem(Headname), 250, 5000);
@@ -392,18 +426,17 @@ begin
   if not RSClient.IsLoggedIn then exit;
   if InFeroxEnclave then
   begin
-    //add pool logic before travel
-    //Finder.Colors += CTS2(11183966, 11, 0.03, 0.78)
+    FeroxPoolHandler;
   end;
   writeln("Traveling to Zeah using the FairyRing");
   writeln('Teleporting to Ardy Monastary');
   Transport.run(rsteleports.MONASTERY);
-  Waituntil(InMonasteryArea, 500, 7500);
-  Transport.Run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
-  Waituntil(INZeahArea, 500, 7500);
+  Waituntil(InMonasteryArea, 2500, 7500);
+  Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
+  Waituntil(INZeahArea, 1500, 8500);
   if (LumbridgeDiary < 4) then
   begin
-  Waituntil(Inventory.ClickItem(MainWeapon), 300, 2000);
+    Waituntil(Inventory.ClickItem(MainWeapon), 1500, 3500);
   end;
   RSMouseZoom.SetZoomLevel(Random(2, 15));
 end;
@@ -413,8 +446,7 @@ begin
   if not RSClient.IsLoggedIn then exit;
   if InFeroxEnclave then
   begin
-    //add pool logic before travel
-    //Finder.Colors += CTS2(11183966, 11, 0.03, 0.78)
+    FeroxPoolHandler;
   end;
   writeln("Traveling to Zeah using the Arceus Library teleport");
   Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
@@ -447,7 +479,7 @@ begin
     begin
       inventory.ClickItem(ROD[i], 'Ferox Enclave');
     end;
-  Waituntil(InCWarsArea, 250, 8000);
+  Waituntil(InFeroxEnclave, 250, 8000);
 end;
 
 procedure ToGE;
@@ -459,9 +491,9 @@ begin
   writeln("Teleporting to the Grand Exchange");
   for i := 0 to High(ROW) do
     begin
-      inventory.ClickItem(ROW[i], 'Castle Wars');
+      inventory.ClickItem(ROW[i], 'Grand Exchange');
     end;
-  Waituntil(InCWarsArea, 250, 8000);
+  Waituntil(InGE, 250, 8000);
   end;
 
 procedure BankLocationHandler;
@@ -498,14 +530,16 @@ begin
   if MainScreen.InCombat then
     begin
       writeln("In combat");
-    if (PrayerLevel >= 40) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Ranged") then //recheck this again later
+    if (PrayerLevel >= 40) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Ranged') then //recheck this again later
       begin
       // check later | TRUE
+      writeln("Ranged Prayer Activated");
       Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
       end;
-    if (PrayerLevel >= 43) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Melee") then //recheck this again later
+    if (PrayerLevel >= 43) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Melee') then //recheck this again later
       begin
       // check later | TRUE
+      writeln("Melee Prayer Activated");
       Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
       end;
       WaitUntil(not MainScreen.WaitNotInCombat(3400), 500, 15000);
@@ -513,14 +547,16 @@ begin
 
    if not MainScreen.InCombat then
     begin
-      if (PrayerLevel >= 40) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Ranged") then //recheck this again later
+      if (PrayerLevel >= 40) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Ranged') then //recheck this again later
         begin
-          // check later | False, after push use [ERSPrayer.PROTECT_FROM_MISSILES]
+          // check later | False, after push, use [ERSPrayer.PROTECT_FROM_MISSILES]
+          writeln("Ranged Prayer Disabled");
           Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MISSILES);
         end;
-      if (PrayerLevel >= 43) and (UseProtectionPrayer = True) and (PrayerProtectionHandler = "Melee") then //recheck this again later
+      if (PrayerLevel >= 43) and (UseProtectionPrayer) and (PrayerProtectionHandler = 'Melee') then //recheck this again later
         begin
-          // check later | False, after push use [ERSPrayer.PROTECT_FROM_MELEE]
+          // check later | False, after push, use [ERSPrayer.PROTECT_FROM_MELEE]
+          writeln("Melee Prayer Disabled");
           Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MELEE);
         end;
      end;
@@ -529,7 +565,6 @@ begin
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 6000);
       HeadCount := Inventory.CountItem(HeadName);
-      //writeln(IntToStr(HeadCount));
       if not inventory.ContainsItem(HeadName) then
       begin
         Wait(SRL.SkewedRand(750, 500, 6000));
@@ -538,32 +573,13 @@ begin
         Mouse.Click(MOUSE_LEFT);
         Waituntil(not Mainscreen.isuptext("Reanimate"), 500, 2000);
         BankLocationHandler;
-        {case BankingLocation of
-          'Ferox Enclave':
-          begin
-            ToFeroxEnclave();
-            Waituntil(InFeroxEnclave, 500, 5000);
-          end;
-
-          'Castle Wars':
-          begin
-            ToCWars();
-            Waituntil(InCWArsArea, 500, 5000);
-          end;
-
-          'Grand Exchange':
-          begin
-            ToGE();
-            Waituntil(InGE, 500, 5000);
-          end;
-        end;}
         exit;
       end;
 
     Inventory.MouseItem(HeadName);
-    waituntil(Mainscreen.IsUpText(Headname), 250, 5500);
+    waituntil(Mainscreen.IsUpText(Headname), 250, 4000);
     Mouse.click(MOUSE_LEFT);
-    Wait(SRL.SkewedRand(4500, 1750, 12500));
+    Wait(SRL.SkewedRand(1000, 500, 3000));
     if Headcount = 1 then
       inventory.open()
     else
@@ -592,12 +608,12 @@ begin
     wait(random(500, 650));
   end;                    // battle end
 
-  if (HeadCount = 1) then
+  if (HeadCount = 0) and not(MainScreen.InCombat) then
     begin
-      writeln("Head count is 1, going to Bank");
+      writeln("Head count is 0, going to Bank");
       BankLocationHandler;
-      exit();
-  end;
+      exit;
+    end;
   exit;
 end;
 
@@ -630,19 +646,19 @@ if (not RSClient.IsLoggedIn) then
       exit;
     end;
 
-  If InCWarsArea or InFeroxEnclave or InGE and (not Inventory.ContainsItem(HeadName)) then
+  If (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
   begin
     Banking();
     exit;
   end;
 
-  if InCwarsArea or InFeroxEnclave or InGE and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
+  if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
   begin
     ToZeah_FairyRing();
     exit;
   end;
 
- If InCwarsArea or InFeroxEnclave or InGE and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
+ If (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
   begin
     ToZeah_ArceusLibrary();
     exit;
@@ -653,6 +669,8 @@ if (not RSClient.IsLoggedIn) then
     WalkToSummon();
     exit;
   end;
+
+  ScriptReport();
 end;
 
 begin
@@ -667,7 +685,7 @@ if (not RSClient.IsLoggedIn) then
 
 //TempDebugger();
   Init();
-  if not InCwarsArea or InFeroxEnclave or InGE then
+  if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
@@ -675,6 +693,5 @@ if (not RSClient.IsLoggedIn) then
   begin
     antiban.DoAntiban();
     MainLoop();
-    ScriptReport();
   end;
 end.
