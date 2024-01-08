@@ -514,6 +514,7 @@ begin
       writeln("In combat");
       if Usefood and (Minimap.GetHPPercent <= 67) then
         begin
+        if Inventory.ContainsConsumable(ERSConsumable.FOOD) then
           Inventory.Consume(ERSConsumable.FOOD);
         end;
 
@@ -522,7 +523,7 @@ begin
           BankLocationHandler;
         end;
 
-      WaitUntil(not MainScreen.WaitNotInCombat(2500), 500, 6000);
+      WaitUntil(not MainScreen.WaitNotInCombat(2200), 500, 6000);
       exit;
     end
    else
@@ -561,28 +562,29 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(8200, 8000, 8700));
+      wait(SRL.SkewedRand(7900, 7800, 8100));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
-      begin
-        if (PrayerLevel >= 40) and (PrayerProtectionHandler = 'Ranged') then
-          begin
-            writeln("Enabling ranged prayer");
-            Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
-          end;
-        if (PrayerLevel >= 43) and (PrayerProtectionHandler = 'Melee') then
-          begin
-            writeln("Enabling melee prayer");
-            Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
-          end;
-      end;
-      WaitUntil(not MainScreen.WaitInCombat(2500), 500, 6000);
+        begin
+          if (PrayerLevel >= 40) and (PrayerProtectionHandler = 'Ranged') then
+            begin
+              writeln("Enabling ranged prayer");
+              Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
+            end;
+          if (PrayerLevel >= 43) and (PrayerProtectionHandler = 'Melee') then
+            begin
+              writeln("Enabling melee prayer");
+              Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
+            end;
+        end;
+      WaitUntil(not MainScreen.WaitInCombat(2200), 500, 6000);
 
       if HeadCount = 1 then
         inventory.open()
       else
         Mouse.move(HoverSpell);
       end;
+
   StartXP := XPBar.read;
   exit;
 end;
@@ -594,77 +596,84 @@ begin
   CurrentXP := XPBar.Read();
   UselessBloatinc;
   writeln('Reanimated: ', HeadCountRep, ' heads');
-  writeln('Earned: ', (CurrentXP - StartXP), 'EXP');
-  writeln('Currently making: ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR hour');
-  If SRL.dice(1) then // Yoink from the roo man, made by student also
+  writeln('Earned: ', (CurrentXP - StartXP), ' EXP');
+  writeln('Currently making: ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR');
+  writeln("=====================================");
+  if SRL.dice(1) then // Yoink from the roo man, made by student also
   WriteLn('Seb still has no mole pet KEKW');
 end;
 
 procedure MainLoop;
 begin
 
-if (not RSClient.IsLoggedIn) then
+  if (not RSClient.IsLoggedIn) then
     Exit;
 
   Failsafe();
 
-  If InSummonArea then
+  if InSummonArea then
     begin
       Summon();
       exit;
     end;
 
-  If InZeahArea and (not inSummonArea) then
+  if InZeahArea and (not inSummonArea) then
     begin
+      antiban.DoAntiban();
       WalkToSummon();
       exit;
     end;
 
-  If (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
-  begin
-    Banking();
-    exit;
-  end;
+  if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
+    begin
+      antiban.DoAntiban();
+      Banking();
+      ScriptReport();
+      exit;
+    end;
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
-  begin
-    ToZeah_FairyRing();
-    exit;
-  end;
+    begin
+      antiban.DoAntiban();
+      ToZeah_FairyRing();
+      exit;
+    end;
 
- If (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
-  begin
-    ToZeah_ArceusLibrary();
-    exit;
-  end;
+  if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
+    begin
+      ToZeah_ArceusLibrary();
+      exit;
+    end;
 
-  If (Not InSummonArea) and InZeahArea then
-  begin
-    WalkToSummon();
-    exit;
-  end;
-
-  ScriptReport();
+  if (Not InSummonArea) and InZeahArea then
+    begin
+      WalkToSummon();
+      exit;
+    end;
 end;
 
 // later implements (ignore)
 {
-// Prayer flicking
+
+// Prayer flicking //
 repeat
 Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
-wait(Srl.SkewedRand(500, 300, 1000));
+wait(Srl.SkewedRand(700, 600, 1000));
 Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
-until Not(mainscreen.incombat);
+until not(mainscreen.incombat);
+
+// Dynamic food withdraw depending on the monster + player hp //
+// prayer pots? (Currently best to use ferox for prayer restore + hp) //
 }
 // later implements (ignore)
 
 begin
 if (not RSClient.IsLoggedIn) then
   begin
-  if Login.GetPlayer.Password <> '' then
-    Login.LoginPlayer
+    if Login.GetPlayer.Password <> '' then
+      Login.LoginPlayer
   else
-  writeln('No player credentials');
+    writeln('No player credentials');
     Exit;
   end;
 
@@ -675,7 +684,6 @@ if (not RSClient.IsLoggedIn) then
 
   while true do
     begin
-      antiban.DoAntiban();
       MainLoop();
     end;
 end.
