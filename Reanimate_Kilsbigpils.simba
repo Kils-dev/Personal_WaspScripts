@@ -4,7 +4,14 @@
 {$I WaspLib/osr/handlers/teleports/transport.simba}
 
 begin
-  Login.PlayerIndex := 0;
+  if (not RSClient.IsLoggedIn) then
+    begin
+      if Login.GetPlayer.Password <> '' then
+        Login.LoginPlayer()
+    else
+      writeln('No player credentials');
+      Exit;
+    end;
 end;
 
 {
@@ -13,11 +20,11 @@ end;
 | ' <| | (_-< '_ \ / _` | '_ \ | (_-<
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
                    |___/|_|
-    Script: Dark Altar Reanimate
+        Dark Altar Reanimate
 
             -[Credits]-
 - @SimonK, @Skunkworks, @Club XJ,
-      @Student, @sebastiaan    }
+@Student, @sebastiaan, @CanadianJames  }
 
 {--          -- REQ. INFO --           --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
@@ -28,11 +35,12 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 {............-= [   -SETTINGS START-   ] =-............}
 
 Const
-  HeadName = "Ensouled bloodveld head"; // Ensouled Head name (case sensitive)
+  HeadName = "Ensouled bloodveld head"; // Ensouled head name (case sensitive)
 
   UseProtectionPrayer = True; // Want to use Protection Prayers?
   Usefood = False; // Want to use food?
-  FoodName = "Sharks";  // Sharks, Manta Ray, etc. (case sensitive)
+  FoodName = "Sharks";  // (if Usefood = True) - Sharks, Manta Ray, etc. also (case sensitive)
+  FoodAmount = 4; // (if Usefood = True) - Amount to withdraw from bank
 
   BankingLocation = "Ferox Enclave"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
   DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
@@ -43,17 +51,16 @@ Const
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
-  RSW              :  TRSWalker;
-  Transport        :  TUniversalTransport;
-  HoverSpell       :  TBox;
-  StartXP          :  Int32;
-  HeadCountRep     :  Int32;
-  MainWeapon       := Combat.GetWeapon();
-  PrayerLevel      := Stats.GetLevel(ERSSkill.PRAYER);
-  ArdyDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
-  LumbridgeDiary   := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
-  ArdyCloak        := 'Ardougne cloak ' + ToStr(ArdyDiary);
-  SciptVer         := {$MACRO SCRIPT_REVISION};
+  RSW                   :  TRSWalker;
+  Transport             :  TUniversalTransport;
+  HoverSpell            :  TBox;
+  StartXP, HeadCountRep :  Int32;
+  MainWeapon            := Combat.GetWeapon();
+  PrayerLevel           := Stats.GetLevel(ERSSkill.PRAYER);
+  ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
+  LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
+  ArdyCloak             := 'Ardougne cloak ' + ToStr(ArdyDiary);
+  SciptVer              := {$MACRO SCRIPT_REVISION};
 
 Const
   FeroxEnclaveArea : Tbox = [7773, 1811, 8167, 2075];
@@ -66,6 +73,18 @@ Const
   SummonSpots      : TPointArray = [[2188, 940], [2184, 940], [2180, 940], [2176, 940],
                                     [2172, 940], [2180, 944], [2184, 944], [2160, 948],
                                     [2156, 948]];
+
+procedure LoginHandler;
+begin
+  if (not RSClient.IsLoggedIn) then
+    begin
+      if Login.GetPlayer.Password <> '' then
+        Login.LoginPlayer()
+    else
+      writeln('No player credentials');
+      Exit;
+    end;
+end;
 
 function EnsouledHeadHandler: ERSSpell;
 begin
@@ -110,6 +129,16 @@ begin
   end;
 end;
 
+procedure TAntiban.Setup(); override;
+  begin
+    Self.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
+                    ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
+                    ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
+    Self.MinZoom := 2;
+    Self.MaxZoom := 24;
+    inherited;
+  end;
+
 procedure UselessBloatinc;
 begin
   writeln("=====================================");
@@ -139,7 +168,7 @@ procedure Init();
 
     UselessBloatinc;
     writeln("             -[Credits]-");
-    writeln("- @SimonK, @Skunkworks, @Club XJ, @Student, @sebastiaan");
+    writeln("- @SimonK, @Skunkworks, @Club XJ," + #13#10 + "@Student, @sebastiaan, @CanadianJames");
     writeln("=====================================");
     writeln("Banking location: ", BankingLocation);
     writeln("Dark Altar Teleport: ", DarkAltarTeleportMethod);
@@ -155,9 +184,7 @@ procedure Init();
     WLSettings.Sleep.Enabled          := False;
     WLSettings.RemoteInput.Enabled    := True;
     WLSettings.RemoteInput.BlockInput := False;
-    WLsettings.Antiban.GameTabs       := False;
-    WLsettings.Antiban.Chat           := False;
-    WLsettings.Antiban.GameTabs       := False;
+    WLsettings.Antiban.GameTabs       := True;
     WLsettings.Antiban.Chat           := False;
     WL.GameSettings.XPBarIsSetup      := True;
     WL.XP.IsSetup                     := True;
@@ -179,17 +206,8 @@ procedure Init();
   if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
 
+      StartXP := XPBar.read;
 end;
-
-procedure TAntiban.Setup(); override;
-  begin
-    Self.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
-                    ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
-                    ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
-    Self.MinZoom := 2;
-    Self.MaxZoom := 24;
-    inherited;
-  end;
 
 function InFeroxEnclave(): Boolean;
 begin
@@ -282,7 +300,7 @@ var
   RingofWealth  := TRSBankItem.Setup('Ring of wealth(5)', 1, False);
   ArdougneCloak := TRSBankItem.Setup(ArdyCloak, 1, False);
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
-  FoodNameSTP   := TRSBankItem.Setup(FoodName, 4, False);
+  FoodNameSTP   := TRSBankItem.Setup(FoodName, FoodAmount, False);
 
   Earthrune     := TRSBankItem.Setup('Earth rune', 100, False);
   Lawrune       := TRSBankItem.Setup('Law rune', 50, False);
@@ -343,7 +361,6 @@ begin
       end;
     end;
 
-  // DarkAltarTeleportMethod handler
   case DarkAltarTeleportMethod of
   "Fairy Ring":
     begin
@@ -577,15 +594,13 @@ begin
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
         end;
-      WaitUntil(not MainScreen.WaitInCombat(2200), 500, 6000);
+      WaitUntil(not MainScreen.WaitInCombat(2000), 500, 6000);
 
       if HeadCount = 1 then
         inventory.open()
       else
         Mouse.move(HoverSpell);
       end;
-
-  StartXP := XPBar.read;
   exit;
 end;
 
@@ -619,14 +634,14 @@ begin
 
   if InZeahArea and (not inSummonArea) then
     begin
-      antiban.DoAntiban();
+      TAntiban.DoAntiban();
       WalkToSummon();
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
     begin
-      antiban.DoAntiban();
+      TAntiban.DoAntiban();
       Banking();
       ScriptReport();
       exit;
@@ -634,7 +649,7 @@ begin
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
     begin
-      antiban.DoAntiban();
+      TAntiban.DoAntiban();
       ToZeah_FairyRing();
       exit;
     end;
@@ -668,15 +683,7 @@ until not(mainscreen.incombat);
 // later implements (ignore)
 
 begin
-if (not RSClient.IsLoggedIn) then
-  begin
-    if Login.GetPlayer.Password <> '' then
-      Login.LoginPlayer
-  else
-    writeln('No player credentials');
-    Exit;
-  end;
-
+  LoginHandler;
   Init();
   if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
@@ -684,6 +691,7 @@ if (not RSClient.IsLoggedIn) then
 
   while true do
     begin
+      LoginHandler;
       MainLoop();
     end;
 end.
