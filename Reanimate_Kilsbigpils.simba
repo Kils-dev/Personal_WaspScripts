@@ -2,7 +2,7 @@
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/osr/handlers/teleports/transport.simba}
-
+//temp
 begin
   if (not RSClient.IsLoggedIn) then
     begin
@@ -13,7 +13,7 @@ begin
       Exit;
     end;
 end;
-
+//temp
 {
  _  ___ _    _    _           _ _
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
@@ -23,7 +23,7 @@ end;
         Dark Altar Reanimate
 
             -[Credits]-
-- @SimonK, @Skunkworks, @Club XJ,
+   @SimonK, @Skunkworks, @Club XJ,
 @Student, @sebastiaan, @CanadianJames  }
 
 {--          -- REQ. INFO --           --
@@ -35,19 +35,21 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 {............-= [   -SETTINGS START-   ] =-............}
 
 Const
-  HeadName = "Ensouled bloodveld head"; // Ensouled head name (case sensitive)
+  HeadName = 'Ensouled bloodveld head'; // Ensouled head name (case sensitive)
 
   UseProtectionPrayer = True; // Want to use Protection Prayers?
-  Usefood = False; // Want to use food?
-  FoodName = "Sharks";  // (if Usefood = True) - Sharks, Manta Ray, etc. also (case sensitive)
-  FoodAmount = 4; // (if Usefood = True) - Amount to withdraw from bank
+  Usefood             = False; // Want to use food?
+  FoodName            = 'Sharks'; // (if Usefood = True) - Sharks, Manta Ray, etc. also (case sensitive)
+  FoodAmount          = 4; // (if Usefood = True) - Amount to withdraw from bank
 
-  BankingLocation = "Ferox Enclave"; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
-  DarkAltarTeleportMethod = "Fairy Ring"; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
-  FairyRingStaff = "Dramen staff"; // "Dramen staff" or "Lunar staff"
+  BankingLocation         = 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
+  DarkAltarTeleportMethod = 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
+  FairyRingStaff          = 'Dramen staff'; // "Dramen staff" or "Lunar staff"
 
   ExperimentalSummonSpot = True; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
 
+  Enable_Breaks = True; // (True/False) Want to use Breaks?
+  Enable_Sleep  = False; // (True/False) Want to use Sleep?
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
@@ -129,28 +131,18 @@ begin
   end;
 end;
 
-procedure TAntiban.Setup(); override;
-  begin
-    Self.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
-                    ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
-                    ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
-    Self.MinZoom := 2;
-    Self.MaxZoom := 24;
-    inherited;
-  end;
-
 procedure UselessBloatinc;
 begin
-  writeln("=====================================");
+  writeln('=====================================');
   writeln(" _  ___ _    _    _           _ _    ");
   writeln("| |/ (_) |__| |__(_)__ _ _ __(_) |___");
   writeln("| ' <| | (_-< '_ \ / _` | '_ \ | (_-<");
   writeln("|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/");
   writeln("                   |___/|_|          ");
-  writeln("=====================================");
-  writeln("        Dark Altar Reanimate");
-  writeln("               Rev. ",SciptVer);
-  writeln("=====================================");
+  writeln('=====================================');
+  writeln('        Dark Altar Reanimate');
+  writeln('               Rev. ',SciptVer);
+  writeln('=====================================');
 end;
 
 procedure Init();
@@ -158,30 +150,37 @@ procedure Init();
   ClearDebug();
 
   if MainWeapon = 'Unarmed' then
-  Terminatescript("No weapon equiped. Please make sure to equip your player before starting the script");
+  Terminatescript('No weapon equiped. Please make sure to equip your player before starting the script');
 
   if EnsouledHeadHandler = ERSSPELL.UNKNOWN then
-  Terminatescript("Unknown head name, make sure to type it correctly");
+  Terminatescript('Unknown head name, make sure to type it correctly');
 
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   Terminatescript("Player isn't on Arceuus Spell Book, make sure to change to it before starting the script");
 
+    Antiban.AddBreak(SRL.SkewedRand(37, 30, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
+    Antiban.AddSleep('08:10:00', 8 * ONE_HOUR, 0.1, 0.8);
+    Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
+                       ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
+                       ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
+
     UselessBloatinc;
-    writeln("             -[Credits]-");
-    writeln("- @SimonK, @Skunkworks, @Club XJ," + #13#10 + "@Student, @sebastiaan, @CanadianJames");
-    writeln("=====================================");
-    writeln("Banking location: ", BankingLocation);
-    writeln("Dark Altar Teleport: ", DarkAltarTeleportMethod);
-    writeln("Will reanimate: ", HeadName);
-    writeln("Using Protection Prayers? ", toSTR(UseProtectionPrayer));
-    writeln("Prayer level: ", PrayerLevel);
-    writeln("Weapon: ", MainWeapon);
+    writeln('             -[Credits]-');
+    writeln('   @SimonK, @Skunkworks, @Club XJ,' + #13#10 + '@Student, @sebastiaan, @CanadianJames');
+    writeln('=====================================');
+    writeln('Banking location: ', BankingLocation);
+    writeln('Dark Altar Teleport: ', DarkAltarTeleportMethod);
+    writeln('Will reanimate: ', HeadName);
+    writeln('Using Protection Prayers? ', toSTR(UseProtectionPrayer));
+    writeln('Prayer level: ', PrayerLevel);
+    writeln('Weapon: ', MainWeapon);
+    writeln('=====================================');
 
     RSW.Setup('world');
     RSW.AdaptiveWalk := True;
     WLSettings.Antiban.Enabled        := True;
-    WLSettings.Breaks                 := True;
-    WLSettings.Sleep.Enabled          := False;
+    WLSettings.Breaks                 := Enable_Breaks;
+    WLSettings.Sleep.Enabled          := Enable_Sleep;
     WLSettings.RemoteInput.Enabled    := True;
     WLSettings.RemoteInput.BlockInput := False;
     WLsettings.Antiban.GameTabs       := True;
@@ -270,26 +269,26 @@ begin
   HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
   if (LumbridgeDiary < 4) then
     begin
-        writeln("Equiping weapon: ", MainWeapon);
+        writeln('Equiping weapon: ', MainWeapon);
         Waituntil(Inventory.ClickItem(MainWeapon), 2000, 4500);
     end;
 
   if ExperimentalSummonSpot then
     begin
-      writeln("Walking to the Summoning Spot (Experimental)");
+      writeln('Walking to the Summoning Spot (Experimental)');
       RSW.WebWalk([2214, 905], 25, 0.5);
-      RSW.WebWalk([2214, 920], 25, 0);
+      RSW.WebWalk([2214, 920], 10, 0);
     end
   else
     begin
-      writeln("Walking to the Summoning Area");
+      writeln('Walking to the Summoning Area');
       RSW.WebWalk(SummonSpots.RandomValue, 25, 0.9);
     end;
 end;
 
 procedure FailSafe;
   begin
-    if chat.FindMessage("have room to", [CHAT_COLOR_BLACK]) then
+    if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
     //add logic for world hopping
       terminatescript("=====Can't summon at this spot. Hop worlds and move character.======");
   end;
@@ -311,7 +310,7 @@ var
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  Writeln("Time to Bank");
+  Writeln('Time to Bank');
   if not RSClient.IsLoggedIn then exit;
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
@@ -325,9 +324,9 @@ begin
     repeat Bank.open(ERSBANKLOCATION.CASTLE_WARS);
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
-    if not Inventory.ContainsItem("Ring of dueling(1..8)") then
+    if not Inventory.ContainsItem('Ring of dueling(1..8)') then
       begin
-        writeln("Withdrawing 1x Ring of dueling(8)");
+        writeln('Withdrawing 1x Ring of dueling(8)');
         Bank.WithdrawItem(RingofDueling, False);
       end;
     end;
@@ -340,9 +339,9 @@ begin
     repeat Bank.open(ERSBANKLOCATION.FEROX);
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
-    if not Inventory.ContainsItem("Ring of dueling(1..8)") then
+    if not Inventory.ContainsItem('Ring of dueling(1..8)') then
       begin
-        writeln("Withdrawing 1x Ring of dueling(8)");
+        writeln('Withdrawing 1x Ring of dueling(8)');
         Bank.WithdrawItem(RingofDueling, False);
       end;
     end;
@@ -354,19 +353,19 @@ begin
     repeat Bank.open(ERSBANKLOCATION.GRAND_EXCHANGE);
     until bank.IsOpen(1500, 500);
       wait(SRL.SkewedRand(750, 500, 1500));
-    if not Inventory.ContainsItem("Ring of wealth(1..5)") then
+    if not Inventory.ContainsItem('Ring of wealth(1..5)') then
       begin
-        writeln("Withdrawing 1x Ring of wealth(5)");
+        writeln('Withdrawing 1x Ring of wealth(5)');
         Bank.WithdrawItem(RingofWealth, False);
       end;
     end;
 
   case DarkAltarTeleportMethod of
-  "Fairy Ring":
+  'Fairy Ring':
     begin
       if not Inventory.ContainsItem(ArdyCloak) then
         begin
-          writeln("Withdrawing 1x " + ArdyCloak);
+          writeln('Withdrawing 1x ' + ArdyCloak);
           Bank.WithdrawItem(ArdougneCloak, False);
         end;
 
@@ -374,19 +373,19 @@ begin
         begin
         if not Inventory.ContainsItem(FairyRingStaff) then
           begin
-            writeln("Player has not completed the Elite Lumbridge Diary.");
-            writeln("Withdrawing 1x " + FairyRingStaff);
+            writeln('Player has not completed the Elite Lumbridge Diary.');
+            writeln('Withdrawing 1x ' + FairyRingStaff);
             Bank.WithdrawItem(FairyRStaff, False);
           end;
         end;
     end;
 
-  "Arceus Library":
+  'Arceus Library':
     begin
-      if Inventory.CountItemStack("Earth rune") <= 10 then
+      if Inventory.CountItemStack('Earth rune') <= 10 then
         Bank.WithdrawItem(Earthrune, False);
 
-      if Inventory.CountItemStack("Law rune") <= 10 then
+      if Inventory.CountItemStack('Law rune') <= 10 then
         Bank.WithdrawItem(Lawrune, False);
     end;
   end;
@@ -398,30 +397,30 @@ if Usefood and not(Inventory.ContainsConsumable(ERSConsumable.FOOD)) then
 case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
     begin
-      if Inventory.CountItemStack("Body rune") <= 100 then
+      if Inventory.CountItemStack('Body rune') <= 100 then
         Bank.WithdrawItem(Bodyrune, False);
     end;
 
   ERSSPELL.ADEPT_REANIMATION:
     begin
-      if Inventory.CountItemStack("Bodyrune") <= 100 then
+      if Inventory.CountItemStack('Bodyrune') <= 100 then
         Bank.WithdrawItem(Bodyrune, False);
 
-      if Inventory.CountItemStack("Soul rune") <= 100 then
+      if Inventory.CountItemStack('Soul rune') <= 100 then
         Bank.WithdrawItem(Soulrune, False);
     end;
 
   ERSSPELL.EXPERT_REANIMATION, ERSSPELL.MASTER_REANIMATION:
     begin
-      if Inventory.CountItemStack("Blood rune") <= 100 then
+      if Inventory.CountItemStack('Blood rune') <= 100 then
         Bank.WithdrawItem(Bloodrune, False);
 
-      if Inventory.CountItemStack("Soul rune") <= 100 then
+      if Inventory.CountItemStack('Soul rune') <= 100 then
         Bank.WithdrawItem(Soulrune, False);
     end;
 end;
 
-  If Inventory.CountItemStack("Nature rune") <= 50 then
+  If Inventory.CountItemStack('Nature rune') <= 50 then
     Bank.WithdrawItem(Naturerune, False);
 
      // Add logic for custom food instead of generic ERSConsumable.FOOD //
@@ -450,7 +449,7 @@ procedure ToZeah_FairyRing;
       begin
         FeroxPoolHandler;
       end;
-    writeln("Traveling to Zeah using the FairyRing");
+    writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
@@ -466,7 +465,7 @@ procedure ToZeah_ArceusLibrary;
         begin
           FeroxPoolHandler;
         end;
-    writeln("Traveling to Zeah using the Arceus Library teleport");
+    writeln('Traveling to Zeah using the Arceus Library teleport');
     Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
     Waituntil(INZeahArea, 500, 6000);
     RSMouseZoom.SetZoomLevel(Random(2, 15));
@@ -475,7 +474,7 @@ procedure ToZeah_ArceusLibrary;
 procedure ToCwars;
   begin
     if not RSClient.IsLoggedIn then exit;
-    writeln("Teleporting to Castle Wars");
+    writeln('Teleporting to Castle Wars');
     Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
     Waituntil(InCWarsArea, 250, 8000);
   end;
@@ -483,7 +482,7 @@ procedure ToCwars;
 procedure ToFeroxEnclave;
   begin
     if not RSClient.IsLoggedIn then exit;
-    writeln("Teleporting to Ferox Enclave");
+    writeln('Teleporting to Ferox Enclave');
     Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
     Waituntil(InFeroxEnclave, 250, 8000);
   end;
@@ -491,7 +490,7 @@ procedure ToFeroxEnclave;
 procedure ToGE;
   begin
     if not RSClient.IsLoggedIn then exit;
-    writeln("Teleporting to the Grand Exchange");
+    writeln('Teleporting to the Grand Exchange');
     Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
     Waituntil(InGE, 250, 8000);
   end;
@@ -522,13 +521,12 @@ procedure BankLocationHandler;
 procedure Summon;
 var
   HeadCount  : Integer;
-  StartXP    : Int32;
 begin
   if not RSClient.IsLoggedIn then exit;
 
   if MainScreen.InCombat then
     begin
-      writeln("In combat");
+      writeln('In combat');
       if Usefood and (Minimap.GetHPPercent <= 67) then
         begin
         if Inventory.ContainsConsumable(ERSConsumable.FOOD) then
@@ -540,7 +538,7 @@ begin
           BankLocationHandler;
         end;
 
-      WaitUntil(not MainScreen.WaitNotInCombat(2200), 500, 6000);
+      WaitUntil(not MainScreen.WaitNotInCombat(2400), 500, 6000);
       exit;
     end
    else
@@ -549,17 +547,17 @@ begin
         begin
           if (PrayerLevel >= 40) and (PrayerProtectionHandler = 'Ranged') then
             begin
-              writeln("Disabling ranged prayer");
+              writeln('Disabling ranged prayer');
               Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
             end;
           if (PrayerLevel >= 43) and (PrayerProtectionHandler = 'Melee') then
             begin
-              writeln("Disabling melee prayer");
+              writeln('Disabling melee prayer');
               Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
          end;
 
-      writeln("Starting reanimation");
+      writeln('Starting reanimation');
       Magic.CastSpell(EnsouledHeadHandler);
       WaitUntil(Inventory.IsOpen, 500, 3000);
       HeadCount := Inventory.CountItem(HeadName);
@@ -570,8 +568,8 @@ begin
           Mouse.move(InvBox);
           Wait(Srl.SkewedRand(500, 300, 1000));
           Mouse.Click(MOUSE_LEFT);
-          Waituntil(not Mainscreen.isuptext("Reanimate"), 500, 2000);
-          writeln("No ensouled heads left, going to Bank");
+          Waituntil(not Mainscreen.isuptext('Reanimate'), 500, 2000);
+          writeln('No ensouled heads left, going to Bank');
           BankLocationHandler;
           exit;
         end;
@@ -579,22 +577,22 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(7900, 7800, 8100));
+      wait(SRL.SkewedRand(7600, 7400, 7700));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
           if (PrayerLevel >= 40) and (PrayerProtectionHandler = 'Ranged') then
             begin
-              writeln("Enabling ranged prayer");
+              writeln('Enabling ranged prayer');
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
             end;
           if (PrayerLevel >= 43) and (PrayerProtectionHandler = 'Melee') then
             begin
-              writeln("Enabling melee prayer");
+              writeln('Enabling melee prayer');
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
         end;
-      WaitUntil(not MainScreen.WaitInCombat(2000), 500, 6000);
+      WaitUntil(not MainScreen.WaitInCombat(2400), 500, 6000);
 
       if HeadCount = 1 then
         inventory.open()
@@ -606,14 +604,20 @@ end;
 
 procedure ScriptReport()
 var
-  CurrentXP : Int32;
+  XPEarned : Int32;
 begin
-  CurrentXP := XPBar.Read();
+  XPEarned := XPBar.Read - StartXP;
   UselessBloatinc;
-  writeln('Reanimated: ', HeadCountRep, ' heads');
-  writeln('Earned: ', (CurrentXP - StartXP), ' EXP');
-  writeln('Currently making: ', Round(((CurrentXP - StartXP) * 3600) / (GetTimeRunning / 1000)),' EXP/HR');
-  writeln("=====================================");
+  writeln('Time running: ', srl.TimeRunning);
+  writeln('Reanimated: ', HeadCountRep, ' ensouled heads');
+  writeln('Reanimations hr: ', Round(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
+  writeln('Earned: ', XPEarned, ' Exp');
+  writeln('Currently making: ', Round(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
+  if (Enable_Breaks) then writeln('Next Break: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
+  else writeln('Next Break: DISABLED');
+  if (Enable_Sleep) then writeln('Sleep: ENABLED')
+  else writeln('Sleep: DISABLED');
+  writeln('=====================================');
   if SRL.dice(1) then // Yoink from the roo man, made by student also
   WriteLn('Seb still has no mole pet KEKW');
 end;
@@ -634,14 +638,14 @@ begin
 
   if InZeahArea and (not inSummonArea) then
     begin
-      TAntiban.DoAntiban();
+      Antiban.DoAntiban();
       WalkToSummon();
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
     begin
-      TAntiban.DoAntiban();
+      Antiban.DoAntiban();
       Banking();
       ScriptReport();
       exit;
@@ -649,7 +653,7 @@ begin
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
     begin
-      TAntiban.DoAntiban();
+      Antiban.DoAntiban();
       ToZeah_FairyRing();
       exit;
     end;
@@ -667,7 +671,7 @@ begin
     end;
 end;
 
-// later implements (ignore)
+// Later implements (ignore)
 {
 
 // Prayer flicking //
@@ -677,14 +681,14 @@ wait(Srl.SkewedRand(700, 600, 1000));
 Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
 until not(mainscreen.incombat);
 
-// Dynamic food withdraw depending on the monster + player hp //
+// Dynamic food withdraw depending on the monster + player hp + food healing amount //
 // prayer pots? (Currently best to use ferox for prayer restore + hp) //
 }
-// later implements (ignore)
+// Later implements (ignore)
 
 begin
   LoginHandler;
-  Init();
+  Init;
   if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
