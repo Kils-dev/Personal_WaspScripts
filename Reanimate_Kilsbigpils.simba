@@ -14,9 +14,10 @@ end;
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
                    |___/|_|
     Script: Dark Altar Reanimate
-              Rev. 1
+
             -[Credits]-
-- @SimonK, @Skunkworks, @Club XJ, @Student, @sebastiaan    }
+- @SimonK, @Skunkworks, @Club XJ,
+      @Student, @sebastiaan    }
 
 {--          -- REQ. INFO --           --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
