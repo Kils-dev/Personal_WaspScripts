@@ -161,7 +161,7 @@ procedure Init();
     WLsettings.Antiban.Chat           := False;
     WL.GameSettings.XPBarIsSetup      := True;
     WL.XP.IsSetup                     := True;
-    Mouse.MissChance                  := Random(14,23);
+    Mouse.MissChance                  := Random(6,15);
     Mouse.Speed                       := Random(15,24);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
     RSMouseZoom.SetZoomLevel(Random(2, 24));
@@ -238,11 +238,11 @@ begin
     Pool.SortBySize();
     Mouse.move(Pool[0].RandomValue);
     if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
-    begin
-    repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
-      Wait(SRL.SkewedRand(6300, 5500, 7000));
-      Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
-    end;
+      begin
+        repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
+        Wait(SRL.SkewedRand(6300, 5500, 7000));
+        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
+      end;
 end;
 
 procedure WalkToSummon;
@@ -646,6 +646,17 @@ if (not RSClient.IsLoggedIn) then
 
   ScriptReport();
 end;
+
+// later implements (ignore)
+{
+// Prayer flicking
+repeat
+Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
+wait(Srl.SkewedRand(500, 300, 1000));
+Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
+until Not(mainscreen.incombat);
+}
+// later implements (ignore)
 
 begin
 if (not RSClient.IsLoggedIn) then
