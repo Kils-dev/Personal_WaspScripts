@@ -58,6 +58,7 @@ var
   Transport             :  TUniversalTransport;
   HoverSpell            :  TBox;
   StartXP, HeadCountRep :  Int32;
+  CheckPrice            := ItemData.GetAverage(HeadName);
   MainWeapon            := Combat.GetWeapon();
   PrayerLevel           := Stats.GetLevel(ERSSkill.PRAYER);
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
@@ -545,7 +546,7 @@ begin
           BankLocationHandler;
         end;
 
-      WaitUntil(not MainScreen.WaitNotInCombat(2400), 500, 6000);
+      WaitUntil(not MainScreen.WaitInCombat(2000), 500, 9000);
       exit;
     end
    else
@@ -584,7 +585,7 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(7600, 7400, 7700));
+      wait(SRL.SkewedRand(7300, 7100, 7500));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
@@ -599,7 +600,7 @@ begin
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
         end;
-      WaitUntil(not MainScreen.WaitInCombat(2400), 500, 6000);
+      WaitUntil(not MainScreen.WaitNotInCombat(2000), 500, 9000);
 
       if HeadCount = 1 then
         inventory.open()
@@ -615,11 +616,13 @@ var
 begin
   XPEarned := XPBar.Read - StartXP;
   UselessBloatinc;
-  writeln('Time running: ', srl.TimeRunning);
+  writeln('Time running: ', SRL.TimeRunning);
   writeln('Reanimated: ', HeadCountRep, ' ensouled heads');
-  writeln('Reanimations hr: ', Round(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
-  writeln('Earned: ', XPEarned, ' Exp');
-  writeln('Currently making: ', Round(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
+  writeln('Reanimations hr: ', SRL.FormatNumber(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
+  writeln('Earned: ', SRL.FormatNumber(XPEarned), ' Exp');
+  writeln('Currently making: ', SRL.FormatNumber(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
+  writeln('Total GP cost: ', SRL.FormatNumber(CheckPrice * HeadCountRep));
+  writeln('GP cost hr: ', SRL.FormatNumber((CheckPrice * HeadCountRep) / (GetTimeRunning / 1000)));
   if (Enable_Breaks) then writeln('Next Break: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
   else writeln('Next Break: DISABLED');
   if (Enable_Sleep) then writeln('Sleep: ENABLED')
