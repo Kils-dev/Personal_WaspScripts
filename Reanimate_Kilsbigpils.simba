@@ -51,6 +51,16 @@ Const
   Enable_Breaks = True; // (True/False) Want to use Breaks?
   Enable_Sleep  = False; // (True/False) Want to use Sleep?
 
+  PreferedWorldRegion := 'EU'; // Can be EU/NA/AUS, can also be "ANY" will use any of the existing Regions.
+  WorldListEU  = [302 .. 304, 309 .. 312, 317, 325, 327, 328, 333, 334, 336,
+                  341 .. 344, 349 .. 352, 358 .. 360, 363, 364, 366 .. 368, 373,
+                  375, 376, 395, 396, 447 .. 450, 459, 463 .. 466, 505 .. 525, 567];
+  WorldListNA  = [305 .. 307, 313 .. 315, 320 .. 324, 329 .. 332, 337 .. 340, 346 .. 348,
+                  353 .. 357, 361, 362, 370, 374, 377, 378, 386, 415, 416, 420 .. 423, 428,
+                  429, 441, 443 .. 446, 467, 477, 478, 480 .. 482, 484 .. 496];
+  WorldListAUS = [387 .. 391, 424, 425, 526 .. 529, 531, 532, 534, 535];
+  //WorldListCustom = []; // Currently unused.
+
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
@@ -189,13 +199,13 @@ procedure Init();
     WL.XP.IsSetup                     := True;
 
     Mouse.MissChance                  := Random(6,15);
-    Mouse.Speed                       := Random(15,24);
+    Mouse.Speed                       := Random(15,22);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
 
     RSMouseZoom.SetZoomLevel(Random(2, 24));
 
-    Antiban.AddBreak(SRL.SkewedRand(37, 30, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
-    Antiban.AddSleep('08:10:00', 8 * ONE_HOUR, 0.1, 0.8);
+    Antiban.AddBreak(SRL.SkewedRand(37, 13, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
+    Antiban.AddSleep('01:00:00', 8 * ONE_HOUR, 0.1, 0.8);
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
@@ -274,18 +284,11 @@ procedure WalkToSummon;
 begin
   if not RSClient.IsLoggedIn then exit;
 
-  HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
-  if (LumbridgeDiary < 4) then
-    begin
-        writeln('Equiping weapon: ', MainWeapon);
-        Waituntil(Inventory.ClickItem(MainWeapon), 2000, 4500);
-    end;
-
   if ExperimentalSummonSpot then
     begin
       writeln('Walking to the Summoning Spot (Experimental)');
       RSW.WebWalk([2214, 905], 25, 0.5);
-      RSW.WebWalk([2214, 920], 10, 0);
+      RSW.WebWalk([2214, 920], 7, 0);
     end
   else
     begin
@@ -448,6 +451,7 @@ end;
 
   If bank.IsOpen then Bank.close;
   Waituntil(not bank.IsOpen, 500, 15000);
+  HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
 end;
 
 procedure ToZeah_FairyRing;
@@ -464,6 +468,12 @@ procedure ToZeah_FairyRing;
     Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
     Waituntil(INZeahArea, 1500, 6000);
     RSMouseZoom.SetZoomLevel(Random(2, 15));
+    if (LumbridgeDiary < 4) then
+    begin
+        writeln('Equiping weapon: ', MainWeapon);
+        Inventory.Open;
+        Waituntil(Inventory.ClickItem(MainWeapon), 2000, 4500);
+    end;
   end;
 
 procedure ToZeah_ArceusLibrary;
@@ -534,7 +544,7 @@ begin
 
   if MainScreen.InCombat then
     begin
-      writeln('In combat');
+      writeln('In combat, waiting for it to end');
       if Usefood and (Minimap.GetHPPercent <= 67) then
         begin
         if Inventory.ContainsConsumable(ERSConsumable.FOOD) then
@@ -585,7 +595,7 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(7300, 7100, 7500));
+      wait(SRL.SkewedRand(6800, 6700, 7000));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
@@ -618,15 +628,15 @@ begin
   UselessBloatinc;
   writeln('Time running: ', SRL.TimeRunning);
   writeln('Reanimated: ', HeadCountRep, ' ensouled heads');
-  writeln('Reanimations hr: ', SRL.FormatNumber(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
+  writeln('Reanimations hr: ', Round(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
   writeln('Earned: ', SRL.FormatNumber(XPEarned), ' Exp');
   writeln('Currently making: ', SRL.FormatNumber(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
   writeln('Total GP cost: ', SRL.FormatNumber(CheckPrice * HeadCountRep));
   writeln('GP cost hr: ', SRL.FormatNumber((CheckPrice * HeadCountRep) / (GetTimeRunning / 1000)));
-  if (Enable_Breaks) then writeln('Next Break: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
-  else writeln('Next Break: DISABLED');
-  if (Enable_Sleep) then writeln('Sleep: ENABLED')
-  else writeln('Sleep: DISABLED');
+  if (Enable_Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
+  else writeln('Breaks: - DISABLED -');
+  if (Enable_Sleep) then writeln('Sleep: - ENABLED -')
+  else writeln('Sleep: - DISABLED -');
   writeln('=====================================');
   if SRL.dice(1) then // Yoink from the roo man, made by student also
   WriteLn('Seb still has no mole pet KEKW');
