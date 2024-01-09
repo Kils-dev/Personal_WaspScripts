@@ -50,6 +50,7 @@ Const
 
   Enable_Breaks = True; // (True/False) Want to use Breaks?
   Enable_Sleep  = False; // (True/False) Want to use Sleep?
+
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
@@ -158,12 +159,6 @@ procedure Init();
   if not Magic.IsSpellBook(ERSSpellBook.ARCEUUS) then
   Terminatescript("Player isn't on Arceuus Spell Book, make sure to change to it before starting the script");
 
-    Antiban.AddBreak(SRL.SkewedRand(37, 30, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
-    Antiban.AddSleep('08:10:00', 8 * ONE_HOUR, 0.1, 0.8);
-    Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
-                       ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
-                       ERSSKILL.ATTACK, ERSSKILL.STRENGTH, ERSSKILL.MAGIC];
-
     UselessBloatinc;
     writeln('             -[Credits]-');
     writeln('   @SimonK, @Skunkworks, @Club XJ,' + #13#10 + '@Student, @sebastiaan, @CanadianJames');
@@ -176,8 +171,11 @@ procedure Init();
     writeln('Weapon: ', MainWeapon);
     writeln('=====================================');
 
+    StartXP                           := XPBar.read;
+
     RSW.Setup('world');
-    RSW.AdaptiveWalk := True;
+    RSW.AdaptiveWalk                  := True;
+
     WLSettings.Antiban.Enabled        := True;
     WLSettings.Breaks                 := Enable_Breaks;
     WLSettings.Sleep.Enabled          := Enable_Sleep;
@@ -185,13 +183,28 @@ procedure Init();
     WLSettings.RemoteInput.BlockInput := False;
     WLsettings.Antiban.GameTabs       := True;
     WLsettings.Antiban.Chat           := False;
+
     WL.GameSettings.XPBarIsSetup      := True;
     WL.XP.IsSetup                     := True;
+
     Mouse.MissChance                  := Random(6,15);
     Mouse.Speed                       := Random(15,24);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
+
     RSMouseZoom.SetZoomLevel(Random(2, 24));
+
+    Antiban.AddBreak(SRL.SkewedRand(37, 30, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
+    Antiban.AddSleep('08:10:00', 8 * ONE_HOUR, 0.1, 0.8);
+    Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
+                       ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
+                       ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
+
     Magic.FindSpell(EnsouledHeadHandler, HoverSpell);
+    Combat.SetAutoRetaliate(True);
+
+    if Options.GetBrightnessLevel < 100 then
+    Options.SetMaxBrightness;
+
     case FairyRingStaff of
       'Dramen staff':
         Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
@@ -200,12 +213,6 @@ procedure Init();
         Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
     end;
 
-    Combat.SetAutoRetaliate(True);
-
-  if Options.GetBrightnessLevel < 100 then
-    Options.SetMaxBrightness;
-
-      StartXP := XPBar.read;
 end;
 
 function InFeroxEnclave(): Boolean;
