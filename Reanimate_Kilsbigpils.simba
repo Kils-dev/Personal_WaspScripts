@@ -2,18 +2,7 @@
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/osr/handlers/teleports/transport.simba}
-//temp
-begin
-  if (not RSClient.IsLoggedIn) then
-    begin
-      if Login.GetPlayer.Password <> '' then
-        Login.LoginPlayer()
-    else
-      writeln('No player credentials');
-      Exit;
-    end;
-end;
-//temp
+begin Login.PlayerIndex := 0; end;
 {
  _  ___ _    _    _           _ _
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
@@ -24,7 +13,8 @@ end;
 
             -[Credits]-
    @SimonK, @Skunkworks, @Club XJ,
-@Student, @sebastiaan, @CanadianJames  }
+@Student, @sebastiaan, @CanadianJames,
+              @TazE                    }
 
 {--          -- REQ. INFO --           --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
@@ -39,7 +29,7 @@ Const
 
   UseProtectionPrayer = True; // Want to use Protection Prayers?
   Usefood             = False; // Want to use food?
-  FoodName            = 'Sharks'; // (if Usefood = True) - Sharks, Manta Ray, etc. also (case sensitive)
+  FoodName            = 'Shark'; // (if Usefood = True) - Shark, Manta ray, etc. also (case sensitive)
   FoodAmount          = 4; // (if Usefood = True) - Amount to withdraw from bank
 
   BankingLocation         = 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
@@ -51,30 +41,17 @@ Const
   Enable_Breaks = True; // (True/False) Want to use Breaks?
   Enable_Sleep  = False; // (True/False) Want to use Sleep?
 
-  PreferedWorldRegion := 'EU'; // Can be EU/NA/AUS, can also be "ANY" will use any of the existing Regions.
-  WorldListEU  = [302 .. 304, 309 .. 312, 317, 325, 327, 328, 333, 334, 336,
-                  341 .. 344, 349 .. 352, 358 .. 360, 363, 364, 366 .. 368, 373,
-                  375, 376, 395, 396, 447 .. 450, 459, 463 .. 466, 505 .. 525, 567];
-  WorldListNA  = [305 .. 307, 313 .. 315, 320 .. 324, 329 .. 332, 337 .. 340, 346 .. 348,
-                  353 .. 357, 361, 362, 370, 374, 377, 378, 386, 415, 416, 420 .. 423, 428,
-                  429, 441, 443 .. 446, 467, 477, 478, 480 .. 482, 484 .. 496];
-  WorldListAUS = [387 .. 391, 424, 425, 526 .. 529, 531, 532, 534, 535];
-  //WorldListCustom = []; // Currently unused.
-
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
-  RSW                   :  TRSWalker;
-  Transport             :  TUniversalTransport;
-  HoverSpell            :  TBox;
-  StartXP, HeadCountRep :  Int32;
-  CheckPrice            := ItemData.GetAverage(HeadName);
-  MainWeapon            := Combat.GetWeapon();
-  PrayerLevel           := Stats.GetLevel(ERSSkill.PRAYER);
-  ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
-  LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
-  ArdyCloak             := 'Ardougne cloak ' + ToStr(ArdyDiary);
-  SciptVer              := {$MACRO SCRIPT_REVISION};
+  ArdyCloak, MainWeapon     : String;
+  StartXP, HeadCountRep, PrayerLevel,
+  ArdyDiary, LumbridgeDiary :  int32;
+  RSW                       :  TRSWalker;
+  Transport                 :  TUniversalTransport;
+  HoverSpell                :  TBox;
+  CheckPrice                := ItemData.GetAverage(HeadName);
+  SciptVer                  := {$MACRO SCRIPT_REVISION};
 
 Const
   FeroxEnclaveArea : Tbox = [7773, 1811, 8167, 2075];
@@ -91,13 +68,23 @@ Const
 procedure LoginHandler;
 begin
   if (not RSClient.IsLoggedIn) then
-    begin
-      if Login.GetPlayer.Password <> '' then
-        Login.LoginPlayer()
+    if Login.GetPlayer.Password <> '' then
+      Login.LoginPlayer
     else
+    begin
       writeln('No player credentials');
       Exit;
     end;
+end;
+
+function PlayersNearby: Boolean;
+var
+  dots: TPointArray;
+begin
+  dots := Minimap.GetDots(ERSMinimapDot.PLAYER);
+  if dots.Len = 0 then Exit(False);
+  FilterPointsDist(dots, 0, 10, Minimap.Center.X, Minimap.Center.Y);
+  Result := dots.Len <> 0;
 end;
 
 function EnsouledHeadHandler: ERSSpell;
@@ -143,6 +130,30 @@ begin
   end;
 end;
 
+procedure DragonProtectionHandler;
+var
+i : int32;
+Found: Boolean;
+DragonFireShieldArray := ['Anti-dragon shield', 'Dragonfire shield',
+                          'Dragonfire ward', 'Ancient wyvern shield'];
+begin
+  if (HeadName = 'Ensouled dragon head') then
+  begin
+    for i := 0 to High(DragonFireShieldArray) do
+    begin
+      Found := Equipment.ContainsItem(DragonFireShieldArray[i]);
+      if Found then
+        begin
+          Writeln('Found ', DragonFireShieldArray[i], ' in the Shield slot');
+        end
+      else
+        begin
+          Writeln('Did not find any of the required shields in the Shield slot');
+        end;
+    end;
+  end;
+end;
+
 procedure UselessBloatinc;
 begin
   writeln('=====================================');
@@ -161,6 +172,12 @@ procedure Init();
   begin
   ClearDebug();
 
+  ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
+  LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
+  PrayerLevel           := Stats.GetLevel(ERSSkill.PRAYER);
+  ArdyCloak             := 'Ardougne cloak ' + ToStr(ArdyDiary);
+  MainWeapon            := Combat.GetWeapon();
+
   if MainWeapon = 'Unarmed' then
   Terminatescript('No weapon equiped. Please make sure to equip your player before starting the script');
 
@@ -172,7 +189,8 @@ procedure Init();
 
     UselessBloatinc;
     writeln('             -[Credits]-');
-    writeln('   @SimonK, @Skunkworks, @Club XJ,' + #13#10 + '@Student, @sebastiaan, @CanadianJames');
+    writeln('    @SimonK, @Skunkworks, @Club XJ,' + #13#10 +
+    '      @Student, @sebastiaan, @CanadianJames, @TazE');
     writeln('=====================================');
     writeln('Banking location: ', BankingLocation);
     writeln('Dark Altar Teleport: ', DarkAltarTeleportMethod);
@@ -300,8 +318,11 @@ end;
 procedure FailSafe;
   begin
     if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
-    //add logic for world hopping
-      terminatescript("=====Can't summon at this spot. Hop worlds and move character.======");
+    WalktoSummon;
+    While PlayersNearby do
+      begin
+        WorldHopper.Hop(Login.GetPlayer().Worlds);
+      end;
   end;
 
 procedure Banking;
@@ -451,7 +472,6 @@ end;
 
   If bank.IsOpen then Bank.close;
   Waituntil(not bank.IsOpen, 500, 15000);
-  HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
 end;
 
 procedure ToZeah_FairyRing;
@@ -474,6 +494,7 @@ procedure ToZeah_FairyRing;
         Inventory.Open;
         Waituntil(Inventory.ClickItem(MainWeapon), 2000, 4500);
     end;
+    HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
   end;
 
 procedure ToZeah_ArceusLibrary;
@@ -487,6 +508,7 @@ procedure ToZeah_ArceusLibrary;
     Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
     Waituntil(INZeahArea, 500, 6000);
     RSMouseZoom.SetZoomLevel(Random(2, 15));
+    HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
   end;
 
 procedure ToCwars;
@@ -541,6 +563,11 @@ var
   HeadCount  : Integer;
 begin
   if not RSClient.IsLoggedIn then exit;
+
+  While PlayersNearby do
+    begin
+      WorldHopper.Hop(Login.GetPlayer().Worlds);
+    end;
 
   if MainScreen.InCombat then
     begin
@@ -646,7 +673,7 @@ procedure MainLoop;
 begin
 
   if (not RSClient.IsLoggedIn) then
-    Exit;
+    LoginHandler;
 
   Failsafe();
 
@@ -693,13 +720,18 @@ end;
 
 // Later implements (ignore)
 {
-
 // Prayer flicking //
 repeat
 Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
 wait(Srl.SkewedRand(700, 600, 1000));
 Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
 until not(mainscreen.incombat);
+// Prayer flicking //
+
+// World hopper //
+While PlayersNearby() do begin
+WorldHopper.Hop(Login.GetPlayer().Worlds);
+// World hopper //
 
 // Dynamic food withdraw depending on the monster + player hp + food healing amount //
 // prayer pots? (Currently best to use ferox for prayer restore + hp) //
@@ -707,15 +739,20 @@ until not(mainscreen.incombat);
 // Later implements (ignore)
 
 begin
-  LoginHandler;
+if (not RSClient.IsLoggedIn) then
+    if Login.GetPlayer.Password <> '' then
+      Login.LoginPlayer
+    else
+      TerminateScript('No player credentials');
+
   Init;
+
   if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
   while true do
     begin
-      LoginHandler;
-      MainLoop();
+      MainLoop;
     end;
 end.
