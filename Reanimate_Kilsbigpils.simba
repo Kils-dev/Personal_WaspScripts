@@ -50,7 +50,7 @@ var
   RSW                       :  TRSWalker;
   Transport                 :  TUniversalTransport;
   HoverSpell                :  TBox;
-  CheckPrice                := ItemData.GetAverage(HeadName);
+  CheckPrice                : String;
   SciptVer                  := {$MACRO SCRIPT_REVISION};
 
 Const
@@ -90,7 +90,7 @@ end;
 function EnsouledHeadHandler: ERSSpell;
 begin
   case HeadName of
-    'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
+    'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head',
     'Ensouled minotaur head', 'Ensouled scorpion head', 'Ensouled bear head',
     'Ensouled unicorn head':
       result := ERSSPELL.BASIC_REANIMATION;
@@ -116,7 +116,7 @@ end;
 function PrayerProtectionHandler: String;
 begin
   case HeadName of
-  'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head ',
+  'Ensouled goblin head', 'Ensouled monkey head', 'Ensouled imp head',
   'Ensouled minotaur head', 'Ensouled scorpion head', 'Ensouled bear head',
   'Ensouled unicorn head', 'Ensouled dog head', 'Ensouled chaos druid head',
   'Ensouled ogre head','Ensouled giant head', 'Ensouled elf head', 'Ensouled troll head',
@@ -129,6 +129,61 @@ begin
   result := 'Ranged';
   end;
 end;
+
+// TEMP SOLUTION TO HEADS NOT GIVING AVERAGE PRICE //
+function EnsouledHeadID: Int32;
+begin
+  case HeadName of
+    'Ensouled goblin head':
+      result := 13448;
+    'Ensouled monkey head':
+      result := 13451;
+    'Ensouled imp head':
+      result := 13454;
+    'Ensouled minotaur head':
+      result := 13457;
+    'Ensouled scorpion head':
+      result := 13460;
+    'Ensouled bear head':
+      result := 13463;
+    'Ensouled unicorn head':
+      result := 13466;
+    'Ensouled dog head':
+      result := 13469;
+    'Ensouled chaos druid head':
+      result := 13472;
+    'Ensouled ogre head':
+      result := 13478;
+    'Ensouled giant head':
+      result := 13475;
+    'Ensouled elf head':
+      result := 13481;
+    'Ensouled troll head':
+      result := 13484;
+    'Ensouled horror head':
+      result := 13487;
+    'Ensouled kalphite head':
+      result := 13490;
+    'Ensouled dagannoth head':
+      result := 13493;
+    'Ensouled bloodveld head':
+      result := 13496;
+    'Ensouled tzhaar head':
+      result := 13499;
+    'Ensouled demon head':
+      result := 13502;
+    'Ensouled hellhound head':
+      result := 26997;
+    'Ensouled aviansie head':
+      result := 13505;
+    'Ensouled abyssal head':
+      result := 13508;
+    'Ensouled dragon head':
+      result := 13511;
+  end;
+end;
+
+// TEMP SOLUTION TO HEADS NOT GIVING AVERAGE PRICE //
 
 procedure DragonProtectionHandler;
 var
@@ -650,6 +705,7 @@ end;
 procedure ScriptReport()
 var
   XPEarned : Int32;
+  CheckPrice := ItemData.GetAverage(EnsouledHeadID);
 begin
   XPEarned := XPBar.Read - StartXP;
   UselessBloatinc;
