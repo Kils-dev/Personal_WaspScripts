@@ -854,10 +854,6 @@ end;
 
 procedure MainLoop;
 begin
-
-  if (not RSClient.IsLoggedIn) then
-  Login.PlayerIndex := 0;
-
   Failsafe();
 
   if InSummonArea then
@@ -929,6 +925,8 @@ if (not RSClient.IsLoggedIn) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
-  repeat MainLoop;
+  repeat
+    if (not RSClient.IsLoggedIn) then Login.LoginPlayer;
+    MainLoop;
   until BankEHeadsExist = False;
 end.
