@@ -41,10 +41,10 @@ Const
   Enable_Breaks := True; // (True/False) Want to use Breaks?
   Enable_Sleep  := False; // (True/False) Want to use Sleep?
 
-  PreferedWorldRegion := 'EU'; // (Case Sensitive) Can be EU/NAEast/NAWest/AUS, can also be "ANY" will use any of the existing Regions.
+  PreferedWorldRegion := 'EU'; // (Case Sensitive) Can be EU/NAEast/NAWest/AUS/CUSTOM
   UseTotalWorlds      := True; // Will hop also to Total Level Worlds
 
-  //WorldListCustom  := []; // Currently unused.
+  WorldListCustom  := [123,321]; // If not using don't touch it
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
@@ -193,7 +193,7 @@ case PreferedWorldRegion of
             if srl.Dice(70) then result := WorldListNAWest else result := TLWNAWest_2000;
           end
       else
-        Result := WorldListNAWest;
+        result := WorldListNAWest;
     end;
 
   'AUS':
@@ -220,26 +220,12 @@ case PreferedWorldRegion of
             if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_2200;
           end
       else
-        Result := WorldListAUS;
+        result := WorldListAUS;
     end;
-
-  'ANY':
+  'CUSTOM':
     begin
-      if UseTotalWorlds then
-        if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
-
-        if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
-
-        if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
-
-        if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
-
-        if (TotalLevel >= 2200) then
-
-      else
-        Result := [387 .. 390, 424, 425, 531, 532, 534, 535];
+      result := WorldListCustom;
     end;
-
   end;
 end;
 // [Experimental] - World Handler - Specific Worlds
