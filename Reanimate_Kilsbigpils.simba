@@ -20,7 +20,8 @@ begin Login.PlayerIndex := 0; end;
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
  *- Make sure to already have your armour + weapon equiped before starting.
  *- Check the official OSRS Wiki for more info:
-https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads   }
+https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads
+ *- WARNING, don't touch stuff from (SETTINGS) that you wont use/need. You might break the script }
 
 {............-= [   -SETTINGS START-   ] =-............}
 
@@ -33,15 +34,15 @@ Const
   FoodAmount          := 4; // (if Usefood = True) - Amount to withdraw from bank
 
   BankingLocation         := 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
-  DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4).
+  DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
 
   ExperimentalSummonSpot := True; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
 
-  Enable_Breaks := True; // (True/False) Want to use Breaks?
-  Enable_Sleep  := False; // (True/False) Want to use Sleep?
+  Enable_Breaks := True; // (True/False) - Want to use Breaks?
+  Enable_Sleep  := False; // (True/False) - Want to use Sleep?
 
-  PreferedWorldRegion := 'EU'; // (Case Sensitive) Can be EU/NAEast/NAWest/AUS/CUSTOM
+  PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
   UseTotalWorlds      := True; // Will hop also to Total Level Worlds
 
   WorldListCustom  := [123,321]; // If not using don't touch it
@@ -50,11 +51,12 @@ Const
 
 var
   StartXP, HeadCountRep, PrayerLevel, TotalLevel,
-  ArdyDiary, LumbridgeDiary :  Int32;
+  ArdyDiary, LumbridgeDiary : Int32;
   ArdyCloak, MainWeapon     : String;
-  RSW                       :  TRSWalker;
-  Transport                 :  TUniversalTransport;
-  HoverSpell                :  TBox;
+  BankEHeadsExist           : Boolean := True;
+  RSW                       : TRSWalker;
+  Transport                 : TUniversalTransport;
+  HoverSpell                : TBox;
   SciptVer                  := {$MACRO SCRIPT_REVISION};
 
 Const
@@ -81,7 +83,6 @@ begin
     end;
 end;
 
-// World Hopper
 function PlayersNearby: Boolean;
 var
   dots: TPointArray;
@@ -91,7 +92,6 @@ begin
   FilterPointsDist(dots, 0, 10, Minimap.Center.X, Minimap.Center.Y);
   Result := dots.Len <> 0;
 end;
-// World Hopper
 
 // [Experimental] - World Handler - Specific Worlds
 function WorldSelectionHandler: TIntegerArray;
@@ -304,7 +304,7 @@ begin
 end;
 // TEMP SOLUTION TO HEADS NOT GIVING AVERAGE PRICE (Wasp Dumper currently has incorrect IDs) //
 
-procedure DragonProtectionHandler;
+procedure DragonProtectionShieldHandler;
 var
 i : int32;
 Found: Boolean;
@@ -322,7 +322,7 @@ begin
         end
       else
         begin
-          Writeln('Did not find any of the required shields in the Shield slot');
+          Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with a anti-fire shield before starting');
         end;
     end;
   end;
@@ -352,6 +352,8 @@ procedure Init();
   TotalLevel            := Stats.GetLevel(ERSSkill.TOTAL);
   ArdyCloak             := 'Ardougne cloak ' + ToStr(ArdyDiary);
   MainWeapon            := Combat.GetWeapon();
+
+  DragonProtectionShieldHandler;
 
   if MainWeapon = 'Unarmed' then
   Terminatescript('No weapon equiped. Please make sure to equip your player before starting the script');
@@ -396,11 +398,13 @@ procedure Init();
 
     RSMouseZoom.SetZoomLevel(Random(2, 24));
 
-    Antiban.AddBreak(SRL.SkewedRand(37, 13, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
-    Antiban.AddSleep('01:00:00', 8 * ONE_HOUR, 0.1, 0.8);
+    // - Antiban tasks - //
+    Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
+    Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
+    // - Antiban tasks - //
 
     Magic.FindSpell(EnsouledHeadHandler, HoverSpell);
     Combat.SetAutoRetaliate(True);
@@ -492,10 +496,12 @@ end;
 procedure FailSafe;
   begin
     if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
-    WalktoSummon;
-    While PlayersNearby do
       begin
-        WorldHopper.Hop(Login.GetPlayer().Worlds);
+        WalktoSummon;
+        While PlayersNearby do
+          begin
+            WorldHopper.Hop(WorldSelectionHandler);
+          end;
       end;
   end;
 
@@ -634,9 +640,11 @@ end;
   //Bank.WithdrawConsumable(ERSConsumable.FOOD);
      // Add logic for custom food instead of generic ERSConsumable.FOOD //
 
-     //check this later again
-  //If not bank.ContainsItem(Headname) then
-  //Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
+  If not bank.ContainsItem(EnsouledHead) then
+  begin
+    Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
+    BankEHeadsExist := False;
+  end;
 
   If not Inventory.ContainsItem(HeadName) then
   begin
@@ -740,7 +748,7 @@ begin
 
    While PlayersNearby do
     begin
-      WorldHopper.Hop(Login.GetPlayer().Worlds);
+      WorldHopper.Hop(WorldSelectionHandler);
     end;
 
   if MainScreen.InCombat then
@@ -921,8 +929,6 @@ if (not RSClient.IsLoggedIn) then
   Terminatescript("Please make sure you are in either the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
-  while true do
-    begin
-      MainLoop;
-    end;
+  repeat MainLoop;
+  until BankEHeadsExist = False;
 end.
