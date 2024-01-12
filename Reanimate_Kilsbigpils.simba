@@ -493,10 +493,10 @@ procedure FailSafe;
   begin
     if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
     WalktoSummon;
-    {While PlayersNearby do
+    While PlayersNearby do
       begin
         WorldHopper.Hop(Login.GetPlayer().Worlds);
-      end;}
+      end;
   end;
 
 procedure Banking;
@@ -738,10 +738,10 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-   {While PlayersNearby do
+   While PlayersNearby do
     begin
       WorldHopper.Hop(Login.GetPlayer().Worlds);
-    end;}
+    end;
 
   if MainScreen.InCombat then
     begin
@@ -902,11 +902,6 @@ wait(Srl.SkewedRand(700, 600, 1000));
 Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MISSILES]);
 until not(mainscreen.incombat);
 // Prayer flicking //
-
-// World hopper //
-While PlayersNearby() do begin
-WorldHopper.Hop(Login.GetPlayer().Worlds);
-// World hopper //
 
 // Dynamic food withdraw depending on the monster + player hp + food healing amount //
 // prayer pots? (Currently best to use ferox for prayer restore + hp) //
