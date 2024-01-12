@@ -43,7 +43,7 @@ Const
   Enable_Sleep  := False; // (True/False) - Want to use Sleep?
 
   PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
-  UseTotalWorlds      := True; // Will hop also to Total Level Worlds
+  UseTotalWorlds      := False; // Will hop also to Total Level Worlds
 
   WorldListCustom  := [123,321]; // If not using don't touch it
 
@@ -71,7 +71,7 @@ Const
                                     [2172, 940], [2180, 944], [2184, 944], [2160, 948],
                                     [2156, 948]];
 
-procedure LoginHandler;
+{procedure LoginHandler;
 begin
   if (not RSClient.IsLoggedIn) then
     if Login.GetPlayer.Password <> '' then
@@ -81,7 +81,7 @@ begin
       writeln('No player credentials');
       Exit;
     end;
-end;
+end;}
 
 function PlayersNearby: Boolean;
 var
@@ -746,10 +746,10 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-   While PlayersNearby do
+   {While PlayersNearby do
     begin
       WorldHopper.Hop(WorldSelectionHandler);
-    end;
+    end;}
 
   if MainScreen.InCombat then
     begin
@@ -856,7 +856,7 @@ procedure MainLoop;
 begin
 
   if (not RSClient.IsLoggedIn) then
-    LoginHandler;
+  Login.PlayerIndex := 0;
 
   Failsafe();
 
