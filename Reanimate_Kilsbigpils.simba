@@ -14,7 +14,7 @@ begin Login.PlayerIndex := 0; end;
             -[Credits]-
    @SimonK, @Skunkworks, @Club XJ,
 @Student, @sebastiaan, @CanadianJames,
-              @TazE                    }
+          @TazE, @ollybest         }
 
 {--          -- REQ. INFO --           --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
@@ -71,17 +71,15 @@ Const
                                     [2172, 940], [2180, 944], [2184, 944], [2160, 948],
                                     [2156, 948]];
 
-{procedure LoginHandler;
+// Get's a random number from an array and still returns one of the values in array format
+function WorldArrayRandomizer(const arr: array of Int32): array of Int32;
 begin
-  if (not RSClient.IsLoggedIn) then
-    if Login.GetPlayer.Password <> '' then
-      Login.LoginPlayer
-    else
-    begin
-      writeln('No player credentials');
-      Exit;
-    end;
-end;}
+  if High(arr) >= 0 then
+  begin
+    SetLength(Result, 1);
+    Result[0] := arr[Random(0, High(arr))];
+  end
+end;
 
 function PlayersNearby: Boolean;
 var
@@ -366,8 +364,8 @@ procedure Init();
 
     UselessBloatinc;
     writeln('             -[Credits]-');
-    writeln('    @SimonK, @Skunkworks, @Club XJ,' + #13#10 +
-            '@Student, @sebastiaan, @CanadianJames, @TazE');
+    writeln('    @SimonK, @Skunkworks, @Club XJ, @Student,' + #13#10 +
+            '@sebastiaan, @CanadianJames, @TazE, @ollybest');
     writeln('=====================================');
     writeln('Banking location: ', BankingLocation);
     writeln('Dark Altar Teleport: ', DarkAltarTeleportMethod);
@@ -471,7 +469,7 @@ begin
     if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
       begin
         repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
-        Wait(SRL.SkewedRand(6300, 5500, 7000));
+        Waituntil(minimap.getrunenergy = 100, 100, 8000);
         Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
       end;
 end;
@@ -500,7 +498,7 @@ procedure FailSafe;
         WalktoSummon;
         While PlayersNearby do
           begin
-            WorldHopper.Hop(WorldSelectionHandler);
+            WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
           end;
       end;
   end;
@@ -746,10 +744,10 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-   {While PlayersNearby do
+   While PlayersNearby do
     begin
-      WorldHopper.Hop(WorldSelectionHandler);
-    end;}
+      WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
+    end;
 
   if MainScreen.InCombat then
     begin
