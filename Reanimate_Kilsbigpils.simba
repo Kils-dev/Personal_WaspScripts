@@ -634,15 +634,9 @@ end;
   If Inventory.CountItemStack('Nature rune') <= 50 then
     Bank.WithdrawItem(Naturerune, False);
 
-     // Add logic for custom food instead of generic ERSConsumable.FOOD //
-  //If not inventory.HasEnoughConsumable(ERSConsumable.FOOD) then
-  //Bank.WithdrawConsumable(ERSConsumable.FOOD);
-     // Add logic for custom food instead of generic ERSConsumable.FOOD //
-
   If not bank.ContainsItem(EnsouledHead) then
   begin
     Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
-    BankEHeadsExist := False;
   end;
 
   If not Inventory.ContainsItem(HeadName) then
@@ -853,7 +847,7 @@ end;
 
 procedure MainLoop;
 begin
-  if (not RSClient.IsLoggedIn) then Login.LoginPlayer;
+  if (not RSClient.IsLoggedIn) then exit;
 
   Failsafe();
 
@@ -914,7 +908,7 @@ until not(mainscreen.incombat);
 // Later implements (ignore)
 
 begin
-if (not RSClient.IsLoggedIn) then
+  if (not RSClient.IsLoggedIn) then
     if Login.GetPlayer.Password <> '' then
       Login.LoginPlayer
     else
@@ -927,6 +921,7 @@ if (not RSClient.IsLoggedIn) then
   Castle Wars or the Grand Exchange before starting the script");
 
   repeat
+    if not RSClient.IsLoggedIn then Login.LoginPlayer;
     MainLoop;
   until BankEHeadsExist = False;
 end.
