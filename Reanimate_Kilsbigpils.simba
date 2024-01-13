@@ -14,7 +14,7 @@ begin Login.PlayerIndex := 0; end;
             -[Credits]-
    @SimonK, @Skunkworks, @Club XJ,
 @Student, @sebastiaan, @CanadianJames,
-          @TazE, @ollybest         }
+              @TazE                    }
 
 {--          -- REQ. INFO --           --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
@@ -37,7 +37,7 @@ Const
   DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
 
-  ExperimentalSummonSpot := True; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
+  ExperimentalSummonSpot := False; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
 
   Enable_Breaks := True; // (True/False) - Want to use Breaks?
   Enable_Sleep  := False; // (True/False) - Want to use Sleep?
@@ -320,7 +320,7 @@ begin
         end
       else
         begin
-          Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with a anti-fire shield before starting');
+          Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with any anti-fire shield before starting');
         end;
     end;
   end;
@@ -365,13 +365,14 @@ procedure Init();
     UselessBloatinc;
     writeln('             -[Credits]-');
     writeln('    @SimonK, @Skunkworks, @Club XJ, @Student,' + #13#10 +
-            '@sebastiaan, @CanadianJames, @TazE, @ollybest');
+            '       @sebastiaan, @CanadianJames, @TazE');
     writeln('=====================================');
     writeln('Banking location: ', BankingLocation);
     writeln('Dark Altar Teleport: ', DarkAltarTeleportMethod);
     writeln('Will reanimate: ', HeadName);
     writeln('Using Protection Prayers? ', toSTR(UseProtectionPrayer));
     writeln('Prayer level: ', PrayerLevel);
+    writeln('Total level: ', TotalLevel);
     writeln('Weapon: ', MainWeapon);
     writeln('=====================================');
 
@@ -469,7 +470,7 @@ begin
     if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
       begin
         repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
-        Waituntil(minimap.getrunenergy = 100, 100, 8000);
+        Wait(SRL.SkewedRand(6300, 5500, 7000));
         Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
       end;
 end;
@@ -543,7 +544,7 @@ begin
 
   if InFeroxEnclave then
     begin
-      RSW.WebWalk([7914, 1924], 5, 0.1);
+      RSW.WebWalk([7918, 1924], 3, 0.1);
       wait(SRL.SkewedRand(500, 250, 1500));
       RSMouseZoom.SetZoomLevel(Random(35, 48));
     repeat Bank.open(ERSBANKLOCATION.FEROX);
@@ -852,6 +853,8 @@ end;
 
 procedure MainLoop;
 begin
+  if (not RSClient.IsLoggedIn) then Login.LoginPlayer;
+
   Failsafe();
 
   if InSummonArea then
@@ -924,7 +927,6 @@ if (not RSClient.IsLoggedIn) then
   Castle Wars or the Grand Exchange before starting the script");
 
   repeat
-    if (not RSClient.IsLoggedIn) then Login.LoginPlayer;
     MainLoop;
   until BankEHeadsExist = False;
 end.
