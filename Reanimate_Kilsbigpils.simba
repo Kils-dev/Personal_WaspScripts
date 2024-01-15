@@ -21,7 +21,7 @@ begin Login.PlayerIndex := 0; end;
  *- Make sure to already have your armour + weapon equiped before starting.
  *- Check the official OSRS Wiki for more info:
 https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads
- *- WARNING, don't touch stuff from (SETTINGS) that you wont use/need. You might break the script }
+ *- (!-WARNING-!), don't touch stuff from (SETTINGS) that you wont use/need. You might break the script }
 
 {............-= [   -SETTINGS START-   ] =-............}
 
@@ -37,16 +37,17 @@ Const
   DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
 
-  ExperimentalSummonSpot := False; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
+  ExperimentalSummonSpot := False; // (!-WARNING-!) - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
 
-  Enable_Breaks       := True; // (True/False) - Want to use Breaks?
-  Enable_Sleep        := False; // (True/False) - Want to use Sleep?
-  Enable_AutoWorldHop := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
+  PreferedWorldRegion  := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
+  UseTotalWorlds       := True; // Will hop also to Total Level Worlds
 
-  PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
-  UseTotalWorlds      := False; // Will hop also to Total Level Worlds
+  WorldListCustom  := [123,321]; // (!-WARNING-!) If not using don't touch it
 
-  WorldListCustom  := [123,321]; // If not using don't touch it
+  Use_Breaks           := True; // (True/False) - Want to use Breaks?
+  Use_Sleep            := False; // (True/False) - Want to use Sleep?
+  Use_BlockUserInput   := False; // (True/False) - Want to block your input on the game window (mouse/keyboard)?
+  Enable_AutoWorldHop  := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
@@ -351,10 +352,10 @@ procedure Init();
     RSW.AdaptiveWalk                  := True;
 
     WLSettings.Antiban.Enabled        := True;
-    WLSettings.Breaks                 := Enable_Breaks;
-    WLSettings.Sleep.Enabled          := Enable_Sleep;
+    WLSettings.Breaks                 := Use_Breaks;
+    WLSettings.Sleep.Enabled          := Use_Sleep;
     WLSettings.RemoteInput.Enabled    := True;
-    WLSettings.RemoteInput.BlockInput := False;
+    WLSettings.RemoteInput.BlockInput := Use_BlockUserInput;
     WLsettings.Antiban.GameTabs       := True;
     WLsettings.Antiban.Chat           := False;
     WL.GameSettings.XPBarIsSetup      := True;
@@ -441,9 +442,8 @@ begin
     Mouse.move(Pool[0].RandomValue);
     if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
       begin
-        repeat Mouse.Click(MOUSE_LEFT) until mainscreen.DidRedClick();
-        Wait(SRL.SkewedRand(6300, 5500, 7000));
-        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
+        Mouse.Click(MOUSE_LEFT);
+        waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1000, 4000);
       end;
 end;
 
@@ -629,7 +629,11 @@ procedure ToZeah_FairyRing;
     if not RSClient.IsLoggedIn then exit;
     if InFeroxEnclave then
       begin
-        FeroxPoolHandler;
+        While not(Minimap.GetPrayerLevel() = PrayerLevel) do
+          begin
+            FeroxPoolHandler;
+          end;
+        //Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
       end;
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
@@ -814,9 +818,9 @@ begin
   writeln('Currently making: ', SRL.FormatNumber(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
   writeln('Total GP cost: ', SRL.FormatNumber(CheckPrice * HeadCountRep));
   writeln('GP cost hr: ', SRL.FormatNumber((CheckPrice * HeadCountRep) / (GetTimeRunning / 1000)));
-  if (Enable_Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
+  if (Use_Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
   else writeln('Breaks: - DISABLED -');
-  if (Enable_Sleep) then writeln('Sleep: - ENABLED -')
+  if (Use_Sleep) then writeln('Sleep: - ENABLED -')
   else writeln('Sleep: - DISABLED -');
   writeln('=====================================');
   if SRL.dice(1) then // Yoink from the roo man, made by student also
@@ -837,14 +841,12 @@ begin
 
   if InZeahArea and (not inSummonArea) then
     begin
-      Antiban.DoAntiban();
       WalkToSummon();
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
     begin
-      Antiban.DoAntiban();
       Banking();
       ScriptReport();
       exit;
@@ -852,7 +854,6 @@ begin
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
     begin
-      Antiban.DoAntiban();
       ToZeah_FairyRing();
       exit;
     end;
@@ -900,5 +901,6 @@ begin
 
   repeat
     MainLoop;
+    Antiban.DoAntiban();
   until BankEHeadsExist = False;
 end.
