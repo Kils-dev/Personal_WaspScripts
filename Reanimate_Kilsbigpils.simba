@@ -37,10 +37,11 @@ Const
   DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
 
-  ExperimentalSummonSpot := False; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK.
+  ExperimentalSummonSpot := False; // *WARNING* - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
 
-  Enable_Breaks := True; // (True/False) - Want to use Breaks?
-  Enable_Sleep  := False; // (True/False) - Want to use Sleep?
+  Enable_Breaks       := True; // (True/False) - Want to use Breaks?
+  Enable_Sleep        := False; // (True/False) - Want to use Sleep?
+  Enable_AutoWorldHop := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
 
   PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
   UseTotalWorlds      := False; // Will hop also to Total Level Worlds
@@ -71,7 +72,7 @@ Const
                                     [2172, 940], [2180, 944], [2184, 944], [2160, 948],
                                     [2156, 948]];
 
-// Get's a random number from an array and still returns one of the values in array format
+// Get's a random number from an array and still returns one of the values in array format instead of int32
 function WorldArrayRandomizer(const arr: array of Int32): array of Int32;
 begin
   if High(arr) >= 0 then
@@ -94,6 +95,12 @@ end;
 // [Experimental] - World Handler - Specific Worlds
 function WorldSelectionHandler: TIntegerArray;
 var
+WorldListEU, TLWEU_1250, TLWEU_1500, TLWEU_1750, TLWEU_2000, TLWEU_2200,
+WorldListNAEast, TLWNAEast_1250, TLWNAEast_1500, TLWNAEast_1750, TLWNAEast_2000, TLWNAEast_2200,
+WorldListNAWest, TLWNAWest_1250, TLWNAWest_1500, TLWNAWest_2000,
+WorldListAUS, TLWAUS_1250, TLWAUS_1500, TLWAUS_1750, TLWAUS_2000, TLWAUS_2200 : array of int32;
+
+begin
   //                                EU -START-                                  //
   WorldListEU      := [302 .. 304, 309 .. 312, 317, 325, 327, 328, 333, 334,
                        336, 341 .. 344, 350 .. 352, 358 .. 360, 367, 368, 375,
@@ -120,106 +127,68 @@ var
   TLWAUS_1250      := [529]; TLWAUS_1500 := [528]; TLWAUS_1750 := [391];
   TLWAUS_2000      := [527]; TLWAUS_2200 := [526];
   //                                 AUS -END-                                  //
-begin
+
 case PreferedWorldRegion of
-  'EU':
-    begin
-      if UseTotalWorlds then
-        if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
-          begin
-            if srl.Dice(70) then result := WorldListEU else result := TLWEU_1250;
-          end;
-        if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
-          begin
-            if srl.Dice(70) then result := WorldListEU else result := TLWEU_1500;
-          end;
-        if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
-          begin
-            if srl.Dice(70) then result := WorldListEU else result := TLWEU_1750;
-          end;
-        if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
-          begin
-            if srl.Dice(70) then result := WorldListEU else result := TLWEU_2000;
-          end;
-        if (TotalLevel >= 2200) then
-          begin
-            if srl.Dice(70) then result := WorldListEU else result := TLWEU_2200;
-          end
-      else
-        result := WorldListEU;
-    end;
-
-  'NAEast':
-    begin
-      if UseTotalWorlds then
-        begin
-            if srl.Dice(70) then result := WorldListNAEast else result := TLWNAEast_1250;
-          end;
-        if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
-          begin
-            if srl.Dice(70) then result := WorldListNAEast else result := TLWNAEast_1500;
-          end;
-        if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
-          begin
-            if srl.Dice(70) then result := WorldListNAEast else result := TLWNAEast_1750;
-          end;
-        if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
-          begin
-            if srl.Dice(70) then result := WorldListNAEast else result := TLWNAEast_2000;
-          end;
-        if (TotalLevel >= 2200) then
-          begin
-            if srl.Dice(70) then result := WorldListNAEast else result := TLWNAEast_2200;
-          end
-      else
-        result := WorldListNAEast;
-    end;
-
-  'NAWest':
-    begin
-      if UseTotalWorlds then
-        if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
-          begin
-            if srl.Dice(70) then result := WorldListNAWest else result := TLWNAWest_1250;
-          end;
-        if (TotalLevel >= 1500) and (TotalLevel <= 1999) then
-          begin
-            if srl.Dice(70) then result := WorldListNAWest else result := TLWNAWest_1500;
-          end;
-        if (TotalLevel >= 2000) then
-          begin
-            if srl.Dice(70) then result := WorldListNAWest else result := TLWNAWest_2000;
-          end
-      else
-        result := WorldListNAWest;
-    end;
-
-  'AUS':
-    begin
-      if UseTotalWorlds then
-        if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
-          begin
-            if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_1250;
-          end;
-        if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
-          begin
-            if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_1500;
-          end;
-        if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
-          begin
-            if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_1750;
-          end;
-        if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
-          begin
-            if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_2000;
-          end;
-        if (TotalLevel >= 2200) then
-          begin
-            if srl.Dice(70) then result := WorldListAUS else result := TLWAUS_2200;
-          end
-      else
-        result := WorldListAUS;
-    end;
+    'EU':
+      begin
+        if UseTotalWorlds then
+          if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
+            result := WorldListEU + TLWEU_1250
+          else if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
+            result := WorldListEU + TLWEU_1500 + TLWEU_1250
+          else if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
+            result := WorldListEU + TLWEU_1750 + TLWEU_1500 + TLWEU_1250
+          else if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
+            result := WorldListEU + TLWEU_2000 + TLWEU_1750 + TLWEU_1500 + TLWEU_1250
+          else if (TotalLevel >= 2200) then
+            result := WorldListEU + TLWEU_2200 + TLWEU_2000 + TLWEU_1750 + TLWEU_1500 + TLWEU_1250
+          else
+            result := WorldListEU;
+      end;
+    'NAEast':
+      begin
+        if UseTotalWorlds then
+          if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
+            result := WorldListNAEast + TLWNAEast_1250
+          else if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
+            result := WorldListNAEast + TLWNAEast_1500 + TLWNAEast_1250
+          else if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
+            result := WorldListNAEast + TLWNAEast_1750 + TLWNAEast_1500 + TLWNAEast_1250
+          else if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
+            result := WorldListNAEast + TLWNAEast_2000 + TLWNAEast_1750 + TLWNAEast_1500 + TLWNAEast_1250
+          else if (TotalLevel >= 2200) then
+            result := WorldListNAEast + TLWNAEast_2200 + TLWNAEast_2000 + TLWNAEast_1750 + TLWNAEast_1500 + TLWNAEast_1250
+          else
+            result := WorldListNAEast;
+      end;
+    'NAWest':
+      begin
+        if UseTotalWorlds then
+          if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
+            result := WorldListNAWest + TLWNAWest_1250
+          else if (TotalLevel >= 1500) and (TotalLevel <= 1999) then
+            result := WorldListNAWest + TLWNAWest_1500 + TLWNAWest_1250
+          else if (TotalLevel >= 2000) then
+            result := WorldListNAWest + TLWNAWest_2000 + TLWNAWest_1500 + TLWNAWest_1250
+          else
+            result := WorldListNAWest;
+      end;
+    'AUS':
+      begin
+        if UseTotalWorlds then
+          if (TotalLevel >= 1250) and (TotalLevel <= 1499) then
+            result := WorldListAUS + TLWAUS_1250
+          else if (TotalLevel >= 1500) and (TotalLevel <= 1749) then
+            result := WorldListAUS + TLWAUS_1500 + TLWAUS_1250
+          else if (TotalLevel >= 1750) and (TotalLevel <= 1999) then
+            result := WorldListAUS + TLWAUS_1750 + TLWAUS_1500 + TLWAUS_1250
+          else if (TotalLevel >= 2000) and (TotalLevel <= 2199) then
+            result := WorldListAUS + TLWAUS_2000 + TLWAUS_1750 + TLWAUS_1500 + TLWAUS_1250
+          else if (TotalLevel >= 2200) then
+            result := WorldListAUS + TLWAUS_2200 + TLWAUS_2000 + TLWAUS_1750 + TLWAUS_1500 + TLWAUS_1250
+          else
+            result := WorldListAUS;
+      end;
   'CUSTOM':
     begin
       result := WorldListCustom;
@@ -400,6 +369,9 @@ procedure Init();
     // - Antiban tasks - //
     Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
     Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
+    Antiban.AddTask(SRL.SkewedRand(21, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(45, 30, 90) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
@@ -497,9 +469,12 @@ procedure FailSafe;
     if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
       begin
         WalktoSummon;
-        While PlayersNearby do
+        if (Enable_AutoWorldHop = true) then
           begin
-            WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
+            While PlayersNearby do
+              begin
+                WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
+              end;
           end;
       end;
   end;
@@ -739,9 +714,12 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-   While PlayersNearby do
+  if (Enable_AutoWorldHop = true) then
     begin
-      WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
+      While PlayersNearby do
+        begin
+          WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
+        end;
     end;
 
   if MainScreen.InCombat then
@@ -797,7 +775,7 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(6800, 6700, 7000));
+      wait(SRL.SkewedRand(6700, 6600, 6900));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
@@ -812,7 +790,7 @@ begin
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
         end;
-      WaitUntil(not MainScreen.WaitNotInCombat(1500), 500, 9000);
+      WaitUntil(not MainScreen.WaitNotInCombat(2000), 500, 9000);
 
       if HeadCount = 1 then
         inventory.open()
@@ -847,7 +825,7 @@ end;
 
 procedure MainLoop;
 begin
-  if (not RSClient.IsLoggedIn) then exit;
+  if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
   Failsafe();
 
@@ -917,11 +895,10 @@ begin
   Init;
 
   if not (InCwarsArea or InFeroxEnclave or InGE) then
-  Terminatescript("Please make sure you are in either the Ferox Enclave,
+  Terminatescript("Please make sure you are in either at the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
   repeat
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
     MainLoop;
   until BankEHeadsExist = False;
 end.
