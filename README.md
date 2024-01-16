@@ -1,5 +1,5 @@
-# Public_WaspScripts
- This is my public rep. for simba scripts.
+# Personal WaspScripts
+ This is my rep. for simba scripts.
 
 # Current Public Scripts:
 <details>
