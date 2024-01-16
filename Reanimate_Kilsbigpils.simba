@@ -861,6 +861,7 @@ begin
         inventory.open()
       else
         Mouse.move(HoverSpell);
+        exit;
       end;
   exit;
 end;
