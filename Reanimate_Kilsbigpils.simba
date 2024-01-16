@@ -62,7 +62,6 @@ var
   ArdyCloak, MainWeapon     : String;
   BankEHeadsExist           : Boolean := True;
   HasSerpHelm               : Boolean;
-  AntipoisonTimer           : TCountDown;
   RSW                       : TRSWalker;
   Transport                 : TUniversalTransport;
   HoverSpell                : TBox;
@@ -599,7 +598,7 @@ begin
       Bank.WithdrawItem(PrayerPot, False);
     end;
 
-  if Usefood and not(Inventory.ContainsConsumable(ERSConsumable.FOOD)) then
+  if Usefood and not(Inventory.ContainsItem(FoodName)) then
     begin
       writeln('Withdrawing ', FoodAmount, 'x ', FoodName);
       Bank.WithdrawItem(FoodNameSTP, False);
@@ -644,21 +643,21 @@ case EnsouledHeadHandler of
     end;
 end;
 
-  If Inventory.CountItemStack('Nature rune') <= 50 then
+  if Inventory.CountItemStack('Nature rune') <= 50 then
     Bank.WithdrawItem(Naturerune, False);
 
-  If not bank.ContainsItem(EnsouledHead) then
+  if not bank.ContainsItem(EnsouledHead) then
   begin
     Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
   end;
 
-  If not Inventory.ContainsItem(HeadName) then
+  if (Inventory.CountItem(HeadName) <= 10) or not(Inventory.ContainsItem(HeadName)) then
   begin
     Bank.WithdrawItem(EnsouledHead, False);
     waituntil(Inventory.ContainsItem(Headname), 250, 5000);
   end;
 
-  If bank.IsOpen then Bank.close;
+  if bank.IsOpen then Bank.close;
   Waituntil(not bank.IsOpen, 500, 15000);
 end;
 
@@ -758,7 +757,7 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-  if (Use_AutoWorldHop = true) then
+  if Use_AutoWorldHop then
     begin
       While PlayersNearby do
         begin
@@ -778,11 +777,8 @@ begin
 
   if (Headname = 'Ensouled kalphite head') and not(HasSerpHelm) then
     begin
-      if (AntipoisonTimer.IsFinished) then
-      begin
+      if (minimap.IsPoisoned) then
         Inventory.Consume(ERSConsumable.POISON);
-        AntipoisonTimer.Restart(SRL.NormalRange(4000, 8000));
-      end;
     end;
 
   if MainScreen.InCombat then
