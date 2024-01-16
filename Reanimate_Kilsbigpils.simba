@@ -733,19 +733,19 @@ procedure BankLocationHandler;
     case BankingLocation of
           'Ferox Enclave':
           begin
-            ToFeroxEnclave();
+            ToFeroxEnclave;
             Waituntil(InFeroxEnclave, 500, 4300);
           end;
 
           'Castle Wars':
           begin
-            ToCWars();
+            ToCWars;
             Waituntil(InCWArsArea, 500, 4300);
           end;
 
           'Grand Exchange':
           begin
-            ToGE();
+            ToGE;
             Waituntil(InGE, 500, 4300);
           end;
         end;
@@ -781,21 +781,27 @@ begin
         Inventory.Consume(ERSConsumable.POISON);
     end;
 
+  if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') then
+    begin
+      if (RSW.GetMyPos) <> [2232, 932] then
+        RSW.WebWalk([2236, 932],0, 0);
+    end;
+
   if MainScreen.InCombat then
     begin
-      writeln('In combat, waiting for it to end');
+      writeln('Still in combat, waiting for it to end');
       if Usefood and (Minimap.GetHPPercent <= 67) then
         begin
         if Inventory.ContainsConsumable(ERSConsumable.FOOD) then
           Inventory.Consume(ERSConsumable.FOOD);
         end;
 
-      if Minimap.GetHPPercent <= 25 then
+      if Minimap.GetHPPercent <= 30 then
         begin
           BankLocationHandler;
         end;
 
-      WaitUntil(not MainScreen.WaitInCombat(2000), 500, 9000);
+      WaitUntil(not MainScreen.WaitInCombat(2000), 500, 8000);
       exit;
     end
    else
@@ -821,7 +827,7 @@ begin
 
       if not inventory.ContainsItem(HeadName) then
         begin
-          Wait(SRL.SkewedRand(750, 500, 3500));
+          Wait(SRL.SkewedRand(750, 500, 3000));
           Mouse.move(InvBox);
           Wait(Srl.SkewedRand(500, 300, 1000));
           Mouse.Click(MOUSE_LEFT);
@@ -849,7 +855,7 @@ begin
               Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE]);
             end;
         end;
-      WaitUntil(not MainScreen.WaitNotInCombat(2000), 500, 9000);
+      WaitUntil(not MainScreen.WaitNotInCombat(2000), 500, 8000);
 
       if HeadCount = 1 then
         inventory.open()
@@ -884,44 +890,49 @@ end;
 
 procedure MainLoop;
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
+  //if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
-  Failsafe();
+  Failsafe;
 
   if InSummonArea then
     begin
-      Summon();
+      Summon;
       exit;
     end;
 
   if InZeahArea and (not inSummonArea) then
     begin
-      WalkToSummon();
+      Antiban.DoAntiban();
+      WalkToSummon;
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
     begin
-      Banking();
-      ScriptReport();
+      Banking;
+      Antiban.DoAntiban();
+      ScriptReport;
       exit;
     end;
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
     begin
-      ToZeah_FairyRing();
+      Antiban.DoAntiban();
+      ToZeah_FairyRing;
       exit;
     end;
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
     begin
-      ToZeah_ArceusLibrary();
+      Antiban.DoAntiban();
+      ToZeah_ArceusLibrary;
       exit;
     end;
 
   if (Not InSummonArea) and InZeahArea then
     begin
-      WalkToSummon();
+      Antiban.DoAntiban();
+      WalkToSummon;
       exit;
     end;
 end;
@@ -955,7 +966,7 @@ begin
   Castle Wars or the Grand Exchange before starting the script");
 
   repeat
+    if not RSClient.IsLoggedIn then Login.LoginPlayer;
     MainLoop;
-    Antiban.DoAntiban();
   until BankEHeadsExist = False;
 end.
