@@ -49,11 +49,6 @@ Const
   UseTotalWorlds       := True; // Will also Hop to Total Level Worlds
   WorldListCustom      := [123,321]; // (!-WARNING-!) If not using don't touch it
 
-  // Extra Settings //
-  Use_Breaks           := True; // (True/False) - Want to use Breaks?
-  Use_Sleep            := False; // (True/False) - Want to use Sleep?
-  Use_BlockUserInput   := False; // (True/False) - Want to block your input on the game window (mouse/keyboard)?
-
 {.............-= [   -SETTINGS END-   ] =-.............}
 
 var
@@ -361,14 +356,14 @@ procedure Init();
     RSW.AdaptiveWalk                  := True;
 
     WLSettings.Antiban.Enabled        := True;
-    WLSettings.Breaks                 := Use_Breaks;
-    WLSettings.Sleep.Enabled          := Use_Sleep;
+    WLSettings.Breaks                 := True;
+    WLSettings.Sleep.Enabled          := False;
     WLSettings.RemoteInput.Enabled    := True;
-    WLSettings.RemoteInput.BlockInput := Use_BlockUserInput;
-    WLsettings.Antiban.GameTabs       := True;
-    WLsettings.Antiban.Chat           := False;
-    WL.GameSettings.XPBarIsSetup      := True;
-    WL.XP.IsSetup                     := True;
+    WLSettings.RemoteInput.BlockInput := False;
+    WLSettings.Antiban.GameTabs       := True;
+    WLSettings.Antiban.Chat           := False;
+    //WL.GameSettings.XPBarIsSetup      := True;
+    //WL.XP.IsSetup                     := True;
 
     Mouse.MissChance                  := Random(6,15);
     Mouse.Speed                       := Random(15,22);
@@ -881,9 +876,9 @@ begin
   writeln('Currently making: ', SRL.FormatNumber(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
   writeln('Total GP cost: ', SRL.FormatNumber(CheckPrice * HeadCountRep));
   writeln('GP cost hr: ', SRL.FormatNumber((CheckPrice * HeadCountRep) / (GetTimeRunning / 1000)));
-  if (Use_Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
+  if (WLSettings.Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
   else writeln('Breaks: - DISABLED -');
-  if (Use_Sleep) then writeln('Sleep: - ENABLED -')
+  if (WLSettings.Sleep.Enabled) then writeln('Sleep: - ENABLED -')
   else writeln('Sleep: - DISABLED -');
   writeln('=====================================');
   if SRL.dice(1) then // Yoink from the roo man, made by student also
