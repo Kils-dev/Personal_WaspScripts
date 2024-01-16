@@ -1,7 +1,7 @@
 # Public_WaspScripts
  This is my public rep. for simba scripts.
 
-# Current Scripts:
+# Current Public Scripts:
 <details>
 <summary>Reanimate_Kilsbigpils.simba</summary>
  
@@ -12,22 +12,22 @@ writeln('Walking to the Summoning Spot (Experimental)');
 </details>
 <hr>
 <details>
-<summary>Sarachnis_Kilsbigpils.simba</summary>
- 
-## Requirements:
-```pascal
-SoonTM
-```
-</details>
-<hr>
-<details>
 <summary>????.simba</summary>
  
 ## Requirements:
 ```pascal
 ????
 ```
+</details>
 
+# Current Paid Scripts:
+<details>
+<summary>Sarachnis_Kilsbigpils.simba</summary>
+ 
+## Requirements:
+```pascal
+SoonTM
+```
 </details>
 
 # More info:
