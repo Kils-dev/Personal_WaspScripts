@@ -12,8 +12,8 @@ begin Login.PlayerIndex := 0; end;
         Dark Altar Reanimate
 
             -[Credits]-
-   @SimonK, @Skunkworks, @Club XJ,
-@Student, @sebastiaan, @CanadianJames,
+   @SimonK, @Skunkworks, @Student,
+@Club XJ, @sebastiaan, @CanadianJames,
               @TazE                    }
 
 {--          -- REQ. INFO --           --
@@ -44,10 +44,10 @@ Const
   ExperimentalSummonSpot  := False; // (!-WARNING-!) - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
 
   // World Hopper Settings //
+  Use_AutoWorldHop     := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
   PreferedWorldRegion  := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
   UseTotalWorlds       := True; // Will also Hop to Total Level Worlds
   WorldListCustom      := [123,321]; // (!-WARNING-!) If not using don't touch it
-  Use_AutoWorldHop     := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
 
   // Extra Settings //
   Use_Breaks           := True; // (True/False) - Want to use Breaks?
