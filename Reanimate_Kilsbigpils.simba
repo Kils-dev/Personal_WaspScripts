@@ -395,14 +395,18 @@ procedure Init();
     if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
 
-    case FairyRingStaff of
-      'Dramen staff':
-        Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
+    if (LumbridgeDiary = 4) then
+        Transport.Init(EFairyTeleportItem.DIARY, ArdyCloak)
+      else
+        begin
+          case FairyRingStaff of
+            'Dramen staff':
+              Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
 
-      'Lunar staff':
-        Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
-    end;
-
+            'Lunar staff':
+              Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
+          end;
+        end;
 end;
 
 function InFeroxEnclave(): Boolean;
