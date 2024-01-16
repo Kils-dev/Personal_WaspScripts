@@ -668,7 +668,8 @@ procedure ToZeah_FairyRing;
             FeroxPoolHandler;
           end;
         wait(800,2000);
-        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
+        if (LumbridgeDiary < 4) then
+          Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
       end;
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
