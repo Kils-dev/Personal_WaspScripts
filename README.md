@@ -2,7 +2,15 @@
  This is my public rep. for simba scripts.
 
 # Current Scripts:
-* Reanimate_Kilsbigpils.simba
+<details>
+<summary>Reanimate_Kilsbigpils.simba</summary>
+Requirements:
+ ```pascal
+ 1. stuff
+ 2. more stuff
+ 3. even more stuff
+```
+</details>
 
 # More info:
 * <b>WaspScripts</b> - https://waspscripts.com/ <br>
