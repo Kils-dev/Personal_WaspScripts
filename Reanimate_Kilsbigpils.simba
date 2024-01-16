@@ -752,28 +752,22 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
+  if UsePrayerPots and (Minimap.GetPrayerLevel() <= PrayerLevel * 0.15) and (Inventory.ContainsConsumable(ERSConsumable.PRAYER)) then
+    begin
+      Inventory.Consume(ERSConsumable.PRAYER);
+        if Inventory.ContainsItem('Vial') then
+          Inventory.ClickItem('Vial', 'Drop');
+    end;
+
+  if (Headname = 'Ensouled kalphite head') and (minimap.IsPoisoned) and not(HasSerpHelm) then
+    Inventory.Consume(ERSConsumable.POISON);
+
   if Use_AutoWorldHop then
     begin
       While PlayersNearby do
         begin
           WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
         end;
-    end;
-
-  if UsePrayerPots and (Minimap.GetPrayerLevel() <= PrayerLevel * 0.15) then
-    begin
-      if Inventory.ContainsConsumable(ERSConsumable.PRAYER) then
-        begin
-          Inventory.Consume(ERSConsumable.PRAYER);
-          if Inventory.ContainsItem('Vial') then
-            Inventory.ClickItem('Vial', 'Drop');
-        end;
-    end;
-
-  if (Headname = 'Ensouled kalphite head') and not(HasSerpHelm) then
-    begin
-      if (minimap.IsPoisoned) then
-        Inventory.Consume(ERSConsumable.POISON);
     end;
 
   if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') then
