@@ -4,12 +4,30 @@
 # Current Scripts:
 <details>
 <summary>Reanimate_Kilsbigpils.simba</summary>
-Requirements:
- ```pascal
- 1. stuff
- 2. more stuff
- 3. even more stuff
+ 
+## Requirements:
+```pascal
+writeln('Walking to the Summoning Spot (Experimental)');
 ```
+</details>
+<hr>
+<details>
+<summary>Sarachnis_Kilsbigpils.simba</summary>
+ 
+## Requirements:
+```pascal
+SoonTM
+```
+</details>
+<hr>
+<details>
+<summary>????.simba</summary>
+ 
+## Requirements:
+```pascal
+????
+```
+
 </details>
 
 # More info:
