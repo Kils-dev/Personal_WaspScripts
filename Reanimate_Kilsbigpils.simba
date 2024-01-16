@@ -26,28 +26,33 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 {............-= [   -SETTINGS START-   ] =-............}
 
 Const
-  HeadName = 'Ensouled bloodveld head'; // Ensouled head name (case sensitive)
+  // Ensouled Heads //
+  HeadName := 'Ensouled bloodveld head'; // Ensouled head name (case sensitive)
 
+  // Consumables //
   UseProtectionPrayer := True; // Want to use Protection Prayers?
+  UsePrayerPots       := False; // Want to use Prayer Pots?
   Usefood             := False; // Want to use food?
   FoodName            := 'Shark'; // (if Usefood = True) - Shark, Manta ray, etc. also (case sensitive)
-  FoodAmount          := 4; // (if Usefood = True) - Amount to withdraw from bank
+  FoodAmount          := 4; // (if Usefood := True) - Amount to withdraw from bank
+  AntiPoison          := 'Superantipoison'; // Don't edit if not fighting kalphite heads
 
+  // Script Locations //
   BankingLocation         := 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
   DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
+  ExperimentalSummonSpot  := False; // (!-WARNING-!) - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
 
-  ExperimentalSummonSpot := False; // (!-WARNING-!) - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
-
+  // World Hopper Settings //
   PreferedWorldRegion  := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
-  UseTotalWorlds       := True; // Will hop also to Total Level Worlds
+  UseTotalWorlds       := True; // Will also Hop to Total Level Worlds
+  WorldListCustom      := [123,321]; // (!-WARNING-!) If not using don't touch it
+  Use_AutoWorldHop     := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
 
-  WorldListCustom  := [123,321]; // (!-WARNING-!) If not using don't touch it
-
+  // Extra Settings //
   Use_Breaks           := True; // (True/False) - Want to use Breaks?
   Use_Sleep            := False; // (True/False) - Want to use Sleep?
   Use_BlockUserInput   := False; // (True/False) - Want to block your input on the game window (mouse/keyboard)?
-  Enable_AutoWorldHop  := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
@@ -56,6 +61,8 @@ var
   ArdyDiary, LumbridgeDiary : Int32;
   ArdyCloak, MainWeapon     : String;
   BankEHeadsExist           : Boolean := True;
+  HasSerpHelm               : Boolean;
+  AntipoisonTimer           : TCountDown;
   RSW                       : TRSWalker;
   Transport                 : TUniversalTransport;
   HoverSpell                : TBox;
@@ -323,6 +330,9 @@ procedure Init();
 
   DragonProtectionShieldHandler;
 
+  if Equipment.ContainsItem('Serpentine helm') then
+  HasSerpHelm := true;
+
   if MainWeapon = 'Unarmed' then
   Terminatescript('No weapon equiped. Please make sure to equip your player before starting the script');
 
@@ -370,9 +380,10 @@ procedure Init();
     // - Antiban tasks - //
     Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
     Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
-    Antiban.AddTask(SRL.SkewedRand(21, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(13, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
     Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
     Antiban.AddTask(SRL.SkewedRand(45, 30, 90) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(15, 5, 30) * ONE_MINUTE, @Antiban.RandomRotate, 0.3);
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
@@ -443,7 +454,7 @@ begin
     if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
       begin
         Mouse.Click(MOUSE_LEFT);
-        waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1000, 4000);
+        waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
       end;
 end;
 
@@ -469,7 +480,7 @@ procedure FailSafe;
     if chat.FindMessage('have room to', [CHAT_COLOR_BLACK]) then
       begin
         WalktoSummon;
-        if (Enable_AutoWorldHop = true) then
+        if (Use_AutoWorldHop = true) then
           begin
             While PlayersNearby do
               begin
@@ -486,6 +497,8 @@ var
   ArdougneCloak := TRSBankItem.Setup(ArdyCloak, 1, False);
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
   FoodNameSTP   := TRSBankItem.Setup(FoodName, FoodAmount, False);
+  PrayerPot     := TRSBankItem.Setup('Prayer potion(4)', 1, False);
+  AntiPoisonSTP := TRSBankItem.Setup(AntiPoison + '(4)', 1, False);
 
   Earthrune     := TRSBankItem.Setup('Earth rune', 100, False);
   Lawrune       := TRSBankItem.Setup('Law rune', 50, False);
@@ -496,8 +509,8 @@ var
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  Writeln('Time to Bank');
   if not RSClient.IsLoggedIn then exit;
+  Writeln('Time to Bank');
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
     repeat Inventory.Consume(ERSConsumable.FOOD);
@@ -576,8 +589,29 @@ begin
     end;
   end;
 
-if Usefood and not(Inventory.ContainsConsumable(ERSConsumable.FOOD)) then
-  Bank.WithdrawItem(FoodNameSTP, False);
+  if UsePrayerPots and not(Inventory.ContainsItem('Prayer potion(1..4)')) then
+    begin
+      writeln('Withdrawing 1x Prayer potion(4)');
+      Bank.WithdrawItem(PrayerPot, False);
+    end;
+
+  if Usefood and not(Inventory.ContainsConsumable(ERSConsumable.FOOD)) then
+    begin
+      writeln('Withdrawing ', FoodAmount, 'x ', FoodName);
+      Bank.WithdrawItem(FoodNameSTP, False);
+    end;
+
+  if Headname = 'Ensouled kalphite head' then
+    begin
+      if HasSerpHelm then
+        writeln('Player has Serp Helm, no need for Antipoison')
+      else if not(Inventory.ContainsConsumable(ERSConsumable.POISON)) then
+        begin
+          writeln('Player not using Serp Helm');
+          writeln('Withdrawing 1x', AntiPoison + '(4)');
+          Bank.WithdrawItem(AntiPoisonSTP, False);
+        end;
+    end;
 
 // Bank withdraw of runes depending on the spell used
 case EnsouledHeadHandler of
@@ -633,7 +667,8 @@ procedure ToZeah_FairyRing;
           begin
             FeroxPoolHandler;
           end;
-        //Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 2000);
+        wait(800,2000);
+        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
       end;
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
@@ -718,12 +753,31 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-  if (Enable_AutoWorldHop = true) then
+  if (Use_AutoWorldHop = true) then
     begin
       While PlayersNearby do
         begin
           WorldHopper.Hop(WorldArrayRandomizer(WorldSelectionHandler));
         end;
+    end;
+
+  if UsePrayerPots and (Minimap.GetPrayerLevel() <= PrayerLevel * 0.15) then
+    begin
+      if Inventory.ContainsConsumable(ERSConsumable.PRAYER) then
+        begin
+          Inventory.Consume(ERSConsumable.PRAYER);
+          if Inventory.ContainsItem('Vial') then
+            Inventory.ClickItem('Vial', 'Drop');
+        end;
+    end;
+
+  if (Headname = 'Ensouled kalphite head') and not(HasSerpHelm) then
+    begin
+      if (AntipoisonTimer.IsFinished) then
+      begin
+        Inventory.Consume(ERSConsumable.POISON);
+        AntipoisonTimer.Restart(SRL.NormalRange(4000, 8000));
+      end;
     end;
 
   if MainScreen.InCombat then
