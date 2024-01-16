@@ -55,7 +55,6 @@ var
   StartXP, HeadCountRep, PrayerLevel, TotalLevel,
   ArdyDiary, LumbridgeDiary : Int32;
   ArdyCloak, MainWeapon     : String;
-  BankEHeadsExist           : Boolean := True;
   HasSerpHelm               : Boolean;
   RSW                       : TRSWalker;
   Transport                 : TUniversalTransport;
@@ -963,8 +962,9 @@ begin
   Terminatescript("Please make sure you are in either at the Ferox Enclave,
   Castle Wars or the Grand Exchange before starting the script");
 
-  repeat
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
-    MainLoop;
-  until BankEHeadsExist = False;
+  while true do
+    begin
+      if not RSClient.IsLoggedIn then Login.LoginPlayer;
+      MainLoop;
+    end;
 end.
