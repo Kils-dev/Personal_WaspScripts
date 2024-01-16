@@ -798,6 +798,7 @@ begin
 
       if Minimap.GetHPPercent <= 30 then
         begin
+          writeln('[Failsafe] - Health is bellow 30%, Teleporting to bank');
           BankLocationHandler;
         end;
 
@@ -913,6 +914,13 @@ begin
       Banking;
       Antiban.DoAntiban();
       ScriptReport;
+      exit;
+    end;
+
+  if (InCWarsArea or InFeroxEnclave or InGE) and (Minimap.GetHPPercent <= 30) then
+    begin
+      Banking;
+      Antiban.DoAntiban();
       exit;
     end;
 
