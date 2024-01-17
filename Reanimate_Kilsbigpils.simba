@@ -35,7 +35,7 @@ Const
   Usefood             := False; // Want to use food?
   FoodName            := 'Shark'; // (if Usefood = True) - Shark, Manta ray, etc. also (case sensitive)
   FoodAmount          := 4; // (if Usefood := True) - Amount to withdraw from bank
-  AntiPoison          := 'Superantipoison'; // Don't edit if not fighting kalphite heads
+  AntiPoison          := 'Superantipoison'; // (No need to add doses), don't edit if not fighting kalphite heads
 
   // Script Locations //
   BankingLocation         := 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
@@ -880,7 +880,6 @@ end;
 
 procedure MainLoop;
 begin
-  //if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
   Failsafe;
 
