@@ -361,14 +361,10 @@ procedure Init();
     WLSettings.RemoteInput.BlockInput := False;
     WLSettings.Antiban.GameTabs       := True;
     WLSettings.Antiban.Chat           := False;
-    //WL.GameSettings.XPBarIsSetup      := True;
-    //WL.XP.IsSetup                     := True;
 
     Mouse.MissChance                  := Random(6,15);
     Mouse.Speed                       := Random(15,22);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
-
-    RSMouseZoom.SetZoomLevel(Random(2, 24));
 
     // - Antiban tasks - //
     Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
@@ -933,7 +929,6 @@ until not(mainscreen.incombat);
 // Prayer flicking //
 
 // Dynamic food withdraw depending on the monster + player hp + food healing amount //
-// prayer pots? (Currently best to use ferox for prayer restore + hp) //
 }
 // Later implements (ignore)
 
