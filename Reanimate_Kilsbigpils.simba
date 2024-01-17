@@ -811,13 +811,14 @@ begin
       Inventory.MouseItem(HeadName);
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
-      wait(SRL.SkewedRand(6700, 6600, 6900));
 
       if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') then
         begin
           if (RSW.GetMyPos) <> [2220, 932] then
             RSW.WebWalk([2220, 932],0, 0);
-          end;
+        end;
+
+      wait(SRL.SkewedRand(6600, 6500, 6800));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
