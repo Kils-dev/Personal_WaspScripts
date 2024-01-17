@@ -432,29 +432,6 @@ begin
   Result := SummonArea.Contains(RSW.GetMyPos());
 end;
 
-procedure FeroxPoolHandler;
-var
-B                : TBox;
-MSRect           : TRectangle;
-PoolFinder       : TRSObjectFinder;
-Pool             : T2DPointArray;
-
-begin
-    PoolFinder.Colors += CTS2(11183966, 11, 0.03, 0.78);
-    PoolFinder.ClusterDistance := 5;
-    MSRect := Minimap.PointToMsRect((Minimap.Center), 15, 15);
-    B := MSRect.Bounds;
-    B.LimitTo(Mainscreen.Bounds);
-    Pool := MainScreen.FindObject(PoolFinder, B);
-    Pool.SortBySize();
-    Mouse.move(Pool[0].RandomValue);
-    if (mainscreen.IsUpText('Drink Pool of Refreshment')) then
-      begin
-        Mouse.Click(MOUSE_LEFT);
-        waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
-      end;
-end;
-
 procedure WalkToSummon;
 begin
   if not RSClient.IsLoggedIn then exit;
@@ -614,30 +591,30 @@ begin
 case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
     begin
-      if Inventory.CountItemStack('Body rune') <= 100 then
+      if Inventory.CountItemStack('Body rune') < 100 then
         Bank.WithdrawItem(Bodyrune, False);
     end;
 
   ERSSPELL.ADEPT_REANIMATION:
     begin
-      if Inventory.CountItemStack('Bodyrune') <= 100 then
+      if Inventory.CountItemStack('Bodyrune') < 100 then
         Bank.WithdrawItem(Bodyrune, False);
 
-      if Inventory.CountItemStack('Soul rune') <= 100 then
+      if Inventory.CountItemStack('Soul rune') < 100 then
         Bank.WithdrawItem(Soulrune, False);
     end;
 
   ERSSPELL.EXPERT_REANIMATION, ERSSPELL.MASTER_REANIMATION:
     begin
-      if Inventory.CountItemStack('Blood rune') <= 100 then
+      if Inventory.CountItemStack('Blood rune') < 100 then
         Bank.WithdrawItem(Bloodrune, False);
 
-      if Inventory.CountItemStack('Soul rune') <= 100 then
+      if Inventory.CountItemStack('Soul rune') < 100 then
         Bank.WithdrawItem(Soulrune, False);
     end;
 end;
 
-  if Inventory.CountItemStack('Nature rune') <= 50 then
+  if Inventory.CountItemStack('Nature rune') < 50 then
     Bank.WithdrawItem(Naturerune, False);
 
   if not bank.ContainsItem(EnsouledHead) then
@@ -662,7 +639,8 @@ procedure ToZeah_FairyRing;
       begin
         While not(Minimap.GetPrayerLevel() = PrayerLevel) do
           begin
-            FeroxPoolHandler;
+            RSObjects.FeroxPoolOfRefreshment.WalkClick;
+            Waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
           end;
         wait(800,2000);
         if (LumbridgeDiary < 4) then
@@ -689,7 +667,11 @@ procedure ToZeah_ArceusLibrary;
     if not RSClient.IsLoggedIn then exit;
       if InFeroxEnclave then
         begin
-          FeroxPoolHandler;
+          While not(Minimap.GetPrayerLevel() = PrayerLevel) do
+          begin
+            RSObjects.FeroxPoolOfRefreshment.WalkClick;
+            Waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
+          end;
         end;
     writeln('Traveling to Zeah using the Arceus Library teleport');
     Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
