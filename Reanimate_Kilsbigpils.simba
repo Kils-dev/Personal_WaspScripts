@@ -633,10 +633,10 @@ procedure ToZeah_FairyRing;
     if not RSClient.IsLoggedIn then exit;
     if InFeroxEnclave then
       begin
-        While not(Minimap.GetPrayerLevel() = PrayerLevel) do
+        While not(Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) do
           begin
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
-            Waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
+            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100), 1500, 6000);
           end;
         wait(800,2000);
         if (LumbridgeDiary < 4) then
@@ -663,10 +663,10 @@ procedure ToZeah_ArceusLibrary;
     if not RSClient.IsLoggedIn then exit;
       if InFeroxEnclave then
         begin
-          While not(Minimap.GetPrayerLevel() = PrayerLevel) do
+          While not(Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) do
           begin
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
-            Waituntil(Minimap.GetPrayerLevel() = PrayerLevel, 1500, 6000);
+            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100), 1500, 6000);
           end;
         end;
     writeln('Traveling to Zeah using the Arceus Library teleport');
