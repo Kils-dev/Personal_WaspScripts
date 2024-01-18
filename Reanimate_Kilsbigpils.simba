@@ -16,11 +16,12 @@ begin Login.PlayerIndex := 0; end;
 @Club XJ, @sebastiaan, @CanadianJames,
               @TazE                    }
 
-{--          -- REQ. INFO --           --
+{-- | -- EXTRA --  -[!] INFO [!]- -- EXTRA -- | --
  *- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
  *- Make sure to already have your armour + weapon equiped before starting.
+ *- Check the Script requirements before making a post about issues.
  *- Check the official OSRS Wiki for more info:
-https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads
+ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads
  *- (!-WARNING-!), don't touch stuff from (SETTINGS) that you wont use/need. You might break the script }
 
 {............-= [   -SETTINGS START-   ] =-............}
@@ -33,21 +34,21 @@ Const
   UseProtectionPrayer := True; // Want to use Protection Prayers?
   UsePrayerPots       := False; // Want to use Prayer Pots?
   Usefood             := False; // Want to use food?
-  FoodName            := 'Shark'; // (if Usefood = True) - Shark, Manta ray, etc. also (case sensitive)
+  FoodName            := 'Shark'; // (if Usefood := True) (case sensitive) - Shark, Manta ray, etc
   FoodAmount          := 4; // (if Usefood := True) - Amount to withdraw from bank
   AntiPoison          := 'Superantipoison(4)'; // Don't edit if not fighting kalphite heads
 
   // Script Locations/Equipment //
   BankingLocation         := 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
-  DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
+  DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" --> (Fairy ring requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
   ExperimentalSummonSpot  := False; // (!-WARNING-!) - THIS IS A TEST FEATURE! USE AT YOUR OWN RISK. Works best with 1 tile monsters
 
   // World Hopper Settings //
-  Use_AutoWorldHop     := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
-  PreferedWorldRegion  := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
-  UseTotalWorlds       := True; // Will also Hop to Total Level Worlds
-  WorldListCustom      := [123,321]; // (!-WARNING-!) If not using don't touch it
+  Use_AutoWorldHop    := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
+  UseTotalWorlds      := True; // (True/False) - Will also Hop to Total Level Worlds
+  PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
+  WorldListCustom     := [123,321]; // (!-WARNING-!) If not using don't touch it, modify if using PreferedWorldRegion := CUSTOM
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
