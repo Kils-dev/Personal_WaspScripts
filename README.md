@@ -7,13 +7,29 @@
  
 ## Features:
 
-* Uses a Custom World Hopper Handler (**TLDR:** You can choose your desired world regions or you can use your own CUSTOM list).
-  * Region Selection: EU, NAEast, NaWest, AUS.
-  * Enable/Disable Total World Hopping.
+* Uses a Custom World Hopper Handler (**TLDR:** You can choose your desired world regions or you can use your own CUSTOM list):
+  * You can Enable/Disable World Hopping.
+  * You can Enable/Disable Total World Hopping.
+  * Regions: EU, NAEast, NaWest, AUS.
   * Configurable CUSTOM World List.
-* 
-* It will automatically detect most stuff that you might do wrong and stop the script telling you what was the cause.
-* 
+* Automatically detects if the user has a anti-fire shield equiped to fight Ensouled Dragon Heads.
+* Automatically detects if the user is wearing a Serpentine helm to fight Ensouled Kalphite Heads.
+  * In case the user is not wearing it it will withdraw the Antipoison you specified in the settings.
+* Automatically uses the correct Prayer Protection if it's enabled in the settings.
+  * Make sure you have the required Prayer level to use Protect from Melee and/or Protect from Missile (if you don't it will also detect this).
+* You can Enable/Disable use of Food and/or Prayer pots.
+  * You can also specify what food to use and the amount.
+* Experimental Summoning spot (Works best with 1 tile sized Monsters).
+* (3) Supported Bank locations:
+  * Castle Wars, Ferox Enclave, Grand Exchange.
+* (2) Supported Travel methods:
+  * Arceus Library and Fairy Ring (Requires Ardougne Cape 1..4);
+    * Automatically detects if you have Elite Lumbridge Diaries before using the Fairy Ring travel method.
+      * You also require to have pre-purchased the fairy ring unlock. Check the osrs wiki if you are unsure.
+* For biger monsters it will use a custom method of Summoning the Ensouled Heads to avoid issues (ONLY if ExperimentalSummonSpot is disable).
+* Will automatically teleport to the bank you specified in the settings if your health is bellow 30%.
+* You can make extra changes if you know what you are doing inside of the "Init" procedure. 
+* It will automatically detect most stuff that you might do wrong and stop the script, telling you what was the cause.
 
 ## Requirements:
 ```
