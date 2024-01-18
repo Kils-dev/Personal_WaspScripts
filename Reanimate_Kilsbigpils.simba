@@ -35,9 +35,9 @@ Const
   Usefood             := False; // Want to use food?
   FoodName            := 'Shark'; // (if Usefood = True) - Shark, Manta ray, etc. also (case sensitive)
   FoodAmount          := 4; // (if Usefood := True) - Amount to withdraw from bank
-  AntiPoison          := 'Superantipoison'; // (No need to add doses), don't edit if not fighting kalphite heads
+  AntiPoison          := 'Superantipoison(4)'; // Don't edit if not fighting kalphite heads
 
-  // Script Locations //
+  // Script Locations/Equipment //
   BankingLocation         := 'Ferox Enclave'; // "Castle Wars", "Ferox Enclave", "Grand Exchange"
   DarkAltarTeleportMethod := 'Fairy Ring'; // "Arceus Library" or "Fairy Ring" (Requires Ardougne cloak 1..4)
   FairyRingStaff          := 'Dramen staff'; // "Dramen staff" or "Lunar staff"
@@ -468,7 +468,7 @@ var
   FairyRStaff   := TRSBankItem.Setup(FairyRingStaff, 1, False);
   FoodNameSTP   := TRSBankItem.Setup(FoodName, FoodAmount, False);
   PrayerPot     := TRSBankItem.Setup('Prayer potion(4)', 1, False);
-  AntiPoisonSTP := TRSBankItem.Setup(AntiPoison + '(4)', 1, False);
+  AntiPoisonSTP := TRSBankItem.Setup(AntiPoison, 1, False);
 
   Earthrune     := TRSBankItem.Setup('Earth rune', 100, False);
   Lawrune       := TRSBankItem.Setup('Law rune', 50, False);
@@ -495,6 +495,9 @@ begin
       wait(SRL.SkewedRand(750, 500, 1500));
     if not Inventory.ContainsItem('Ring of dueling(1..8)') then
       begin
+        if not bank.ContainsItem(RingofDueling) then
+          Terminatescript('Could not find [Ring of dueling(8)] in bank, stoping script.');
+
         writeln('Withdrawing 1x Ring of dueling(8)');
         Bank.WithdrawItem(RingofDueling, False);
       end;
@@ -510,6 +513,9 @@ begin
       wait(SRL.SkewedRand(750, 500, 1500));
     if not Inventory.ContainsItem('Ring of dueling(1..8)') then
       begin
+        if not bank.ContainsItem(RingofDueling) then
+          Terminatescript('Could not find [Ring of dueling(8)] in bank, stoping script.');
+
         writeln('Withdrawing 1x Ring of dueling(8)');
         Bank.WithdrawItem(RingofDueling, False);
       end;
@@ -524,6 +530,9 @@ begin
       wait(SRL.SkewedRand(750, 500, 1500));
     if not Inventory.ContainsItem('Ring of wealth(1..5)') then
       begin
+        if not bank.ContainsItem(RingofWealth) then
+          Terminatescript('Could not find [Ring of wealth(5)] in bank, stoping script.');
+
         writeln('Withdrawing 1x Ring of wealth(5)');
         Bank.WithdrawItem(RingofWealth, False);
       end;
@@ -534,6 +543,9 @@ begin
     begin
       if not Inventory.ContainsItem(ArdyCloak) then
         begin
+          if not bank.ContainsItem(ArdougneCloak) then
+            Terminatescript('Could not find [' + ArdyCloak + '] in bank, stoping script.');
+
           writeln('Withdrawing 1x ' + ArdyCloak);
           Bank.WithdrawItem(ArdougneCloak, False);
         end;
@@ -542,6 +554,9 @@ begin
         begin
         if not Inventory.ContainsItem(FairyRingStaff) then
           begin
+            if not bank.ContainsItem(FairyRStaff) then
+              Terminatescript('Could not find [' + FairyRingStaff + '] in bank, stoping script.');
+
             writeln('Player has not completed the Elite Lumbridge Diary.');
             writeln('Withdrawing 1x ' + FairyRingStaff);
             Bank.WithdrawItem(FairyRStaff, False);
@@ -552,21 +567,37 @@ begin
   'Arceus Library':
     begin
       if Inventory.CountItemStack('Earth rune') <= 10 then
+      begin
+        if not bank.ContainsItem(Earthrune) then
+          Terminatescript('Could not find/ran out [Earth rune] in bank, stoping script.');
+
         Bank.WithdrawItem(Earthrune, False);
+      end;
 
       if Inventory.CountItemStack('Law rune') <= 10 then
-        Bank.WithdrawItem(Lawrune, False);
+        begin
+          if not bank.ContainsItem(Lawrune) then
+            Terminatescript('Could not find/ran out [Law rune] in bank, stoping script.');
+
+          Bank.WithdrawItem(Lawrune, False);
+        end;
     end;
   end;
 
   if UsePrayerPots and not(Inventory.ContainsItem('Prayer potion(1..4)')) then
     begin
+      if not bank.ContainsItem(PrayerPot) then
+        Terminatescript('Could not find/ran out [Prayer potion(4)] in bank, stoping script.');
+
       writeln('Withdrawing 1x Prayer potion(4)');
       Bank.WithdrawItem(PrayerPot, False);
     end;
 
   if Usefood and not(Inventory.ContainsItem(FoodName)) then
     begin
+      if not bank.ContainsItem(FoodNameSTP) then
+        Terminatescript('Could not find/ran out [' + FoodName + '] in bank, stoping script.');
+
       writeln('Withdrawing ', FoodAmount, 'x ', FoodName);
       Bank.WithdrawItem(FoodNameSTP, False);
     end;
@@ -577,8 +608,11 @@ begin
         writeln('Player has Serp Helm, no need for Antipoison')
       else if not(Inventory.ContainsConsumable(ERSConsumable.POISON)) then
         begin
+          if not bank.ContainsItem(AntiPoisonSTP) then
+            Terminatescript('Could not find/ran out [' + AntiPoison + '] in bank, stoping script.');
+
           writeln('Player not using Serp Helm');
-          writeln('Withdrawing 1x', AntiPoison + '(4)');
+          writeln('Withdrawing 1x ', AntiPoison);
           Bank.WithdrawItem(AntiPoisonSTP, False);
         end;
     end;
@@ -588,38 +622,66 @@ case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
     begin
       if Inventory.CountItemStack('Body rune') < 100 then
-        Bank.WithdrawItem(Bodyrune, False);
+        begin
+          if not bank.ContainsItem(Bodyrune) then
+          Terminatescript('Could not find/ran out [Body rune] in bank, stoping script.');
+
+          Bank.WithdrawItem(Bodyrune, False);
+        end;
     end;
 
   ERSSPELL.ADEPT_REANIMATION:
     begin
       if Inventory.CountItemStack('Bodyrune') < 100 then
-        Bank.WithdrawItem(Bodyrune, False);
+        begin
+          if not bank.ContainsItem(Bodyrune) then
+            Terminatescript('Could not find/ran out [Body rune] in bank, stoping script.');
+
+          Bank.WithdrawItem(Bodyrune, False);
+        end;
 
       if Inventory.CountItemStack('Soul rune') < 100 then
+      begin
+        if not bank.ContainsItem(Soulrune) then
+          Terminatescript('Could not find/ran out [Soul rune] in bank, stoping script.');
+
         Bank.WithdrawItem(Soulrune, False);
+      end;
     end;
 
   ERSSPELL.EXPERT_REANIMATION, ERSSPELL.MASTER_REANIMATION:
     begin
       if Inventory.CountItemStack('Blood rune') < 100 then
-        Bank.WithdrawItem(Bloodrune, False);
+        begin
+          if not bank.ContainsItem(Bloodrune) then
+            Terminatescript('Could not find/ran out [Blood rune] in bank, stoping script.');
+
+          Bank.WithdrawItem(Bloodrune, False);
+        end;
 
       if Inventory.CountItemStack('Soul rune') < 100 then
-        Bank.WithdrawItem(Soulrune, False);
+        begin
+          if not bank.ContainsItem(Soulrune) then
+            Terminatescript('Could not find/ran out [Soul rune] in bank, stoping script.');
+
+          Bank.WithdrawItem(Soulrune, False);
+        end;
     end;
 end;
 
   if Inventory.CountItemStack('Nature rune') < 50 then
-    Bank.WithdrawItem(Naturerune, False);
+    begin
+      if not bank.ContainsItem(Naturerune) then
+        Terminatescript('Could not find/ran out [Nature rune] in bank, stoping script.');
 
-  if not bank.ContainsItem(EnsouledHead) then
-  begin
-    Terminatescript("Could not find [" + HeadName + "] in bank, stoping script.");
-  end;
+      Bank.WithdrawItem(Naturerune, False);
+    end;
 
-  if (Inventory.CountItem(HeadName) <= 10) or not(Inventory.ContainsItem(HeadName)) then
+  if (Inventory.CountItem(HeadName) <= 6) or not(Inventory.ContainsItem(HeadName)) then
   begin
+    if not bank.ContainsItem(EnsouledHead) then
+      Terminatescript('Could not find [' + HeadName + '] in bank, stoping script.');
+
     Bank.WithdrawItem(EnsouledHead, False);
     waituntil(Inventory.ContainsItem(Headname), 250, 5000);
   end;
@@ -633,15 +695,31 @@ procedure ToZeah_FairyRing;
     if not RSClient.IsLoggedIn then exit;
     if InFeroxEnclave then
       begin
-        While not(Minimap.GetPrayerPercent = 100) and not(Minimap.GetHPPercent = 100) do
+        While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
-            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100), 1500, 6000);
+            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
-        wait(800,2000);
-        if (LumbridgeDiary < 4) then
-          Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
       end;
+
+    if (BankingLocation = "Ferox Enclave") or (BankingLocation = "Castle Wars") then
+      if not(Inventory.ContainsItem('Ring of dueling(1..8)')) then
+        begin
+          writeln('Missing Ring of Dueling, going back to bank');
+          Banking;
+        end;
+
+    if (BankingLocation = "Grand Exchange") then
+      if not(Inventory.ContainsItem('Ring of wealth(1..5)')) then
+        begin
+          writeln('Missing Ring of Wealth, going back to bank');
+          Banking;
+        end;
+
+      wait(1500,2000);
+      if (LumbridgeDiary < 4) then
+        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
+
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
     Transport.run(rsteleports.MONASTERY);
@@ -663,10 +741,10 @@ procedure ToZeah_ArceusLibrary;
     if not RSClient.IsLoggedIn then exit;
       if InFeroxEnclave then
         begin
-          While not(Minimap.GetPrayerPercent = 100) and not(Minimap.GetHPPercent = 100) do
+          While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
-            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100), 1500, 6000);
+            Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
         end;
     writeln('Traveling to Zeah using the Arceus Library teleport');
@@ -729,7 +807,7 @@ var
 begin
   if not RSClient.IsLoggedIn then exit;
 
-  if UsePrayerPots and (Minimap.GetPrayerLevel() <= PrayerLevel * 0.15) and (Inventory.ContainsConsumable(ERSConsumable.PRAYER)) then
+  if UsePrayerPots and (Minimap.GetPrayerPercent <= 20) and (Inventory.ContainsConsumable(ERSConsumable.PRAYER)) then
     begin
       Inventory.Consume(ERSConsumable.PRAYER);
         if Inventory.ContainsItem('Vial') then
@@ -747,9 +825,9 @@ begin
         end;
     end;
 
-  if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') then
+  if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') and not(ExperimentalSummonSpot) then
     begin
-      if (RSW.GetMyPos) <> [2232, 932] then
+      if (RSW.GetMyPos) <> [2236, 932] then
         RSW.WebWalk([2236, 932],0, 0);
     end;
 
@@ -808,13 +886,19 @@ begin
       waituntil(Mainscreen.IsUpText(Headname), 250, 5000);
       Mouse.click(MOUSE_LEFT);
 
-      if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') then
+      if (Headname = 'Ensouled kalphite head') or (Headname = 'Ensouled dragon head') and not(ExperimentalSummonSpot) then
         begin
-          if (RSW.GetMyPos) <> [2220, 932] then
-            RSW.WebWalk([2220, 932],0, 0);
+          if (RSW.GetMyPos) <> [2223, 932] then
+            begin
+              wait(2000);
+              RSW.WebWalk([2223, 932],0, 0);
+              wait(SRL.SkewedRand(2400, 2300, 2500))
+            end;
+        end
+        else
+        begin
+          wait(SRL.SkewedRand(6150, 6000, 6300));
         end;
-
-      wait(SRL.SkewedRand(6500, 6400, 6700));
 
       if (UseProtectionPrayer) and (minimap.GetPrayerLevel > 0) then
         begin
