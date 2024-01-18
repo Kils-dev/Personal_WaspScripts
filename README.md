@@ -9,8 +9,8 @@
 
 * Uses a Custom World Hopper Handler (**TLDR:** You can choose your desired world regions or you can use your own CUSTOM list):
   * You can Enable/Disable World Hopping.
-  * You can Enable/Disable Total World Hopping.
-  * Regions: EU, NAEast, NaWest, AUS.
+  * You can Enable/Disable Total Level World Hopping.
+  * Regions: EU, NAEast, NAWest, AUS.
   * Configurable CUSTOM World List.
 * Automatically detects if the user has a anti-fire shield equiped to fight Ensouled Dragon Heads.
 * Automatically detects if the user is wearing a Serpentine helm to fight Ensouled Kalphite Heads.
@@ -34,8 +34,11 @@
 ## Requirements:
 ```
 - Have your equipment and weapon pre-equiped.
+- Have your desired Head in your bank.
+- Have the Fairy ring near the altar unlock if using it (Search for it on reddit/youtube if needed).
+- Have a Ring of Dueling if using the Castle Wars/Ferox Enclave bank, alternatively, a Ring of Wealth if using the Grand Exchange.
 - 
-- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS. (If you want accurate EXP/Hr reports)
+- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS (If you want accurate Exp/Hr reports).
 - Make sure to already have your armour + weapon equiped before starting.
 - Check the Script requirements before making a post about issues.
 - Check the official OSRS Wiki for more info:
