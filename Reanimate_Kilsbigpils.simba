@@ -22,7 +22,7 @@ begin Login.PlayerIndex := 0; end;
  *- Ty to SimonK for letting me rebuild/remake his old reanimate script!
  *- Ty to Majora for collecting the osrs world numbers per region.
  *- Ty to Unit for testing the script.
- *- Ty to Torwent and Olly for the procedure/function recommendations, specialy with the ferox pool.
+ *- Ty to Torwent and Olly for the procedure/function recommendations, specially with the ferox pool.
 
  *- You can also find all my present/future script infos in my github:
           https://github.com/Kilsbigpils/Personal_WaspScripts/                                    }
