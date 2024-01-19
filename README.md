@@ -1,9 +1,17 @@
 # Personal WaspScripts
- This is my rep. for simba scripts.
+ ```pascal
+ _  ___ _    _    _           _ _
+| |/ (_) |__| |__(_)__ _ _ __(_) |___
+| ' <| | (_-< '_ \ / _` | '_ \ | (_-<
+|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
+                   |___/|_| THE PROFESSOR
+ ```
 
 # Current Public Scripts:
 <details>
-<summary>Reanimate_Kilsbigpils.simba</summary>
+<summary>[CLICK] Reanimate_Kilsbigpils.simba</summary>
+<br>
+I recommend for you to watch this video before you use this script:<br> https://www.youtube.com/watch?v=2eP6WPHqPBk
  
 ## Features:
 ```
@@ -41,16 +49,44 @@
 ```
 ## Requirements:
 ```
+- Start in one of the supported bank locations.
+- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS (If you want accurate Exp/Hr reports).
 - Have your equipment and weapon pre-equiped.
-- Have your desired Head in your bank.
+- Have your desired Ensouled Head in your bank.
 - Have the Fairy ring near the altar unlock if using it (Search for it on reddit/youtube if needed).
 - Have a Ring of Dueling if using the Castle Wars/Ferox Enclave bank, alternatively, a Ring of Wealth if using the Grand Exchange.
-- 
-- Set EXP Bar to PRAYER ONLY. NOT TOTAL SKILLS (If you want accurate Exp/Hr reports).
-- Make sure to already have your armour + weapon equiped before starting.
-- Check the Script requirements before making a post about issues.
+- Script Settings are located between:
+{............-= [   -SETTINGS START-   ] =-............}
+{.............-= [   -SETTINGS END-   ] =-.............}
+- Instructions/Descriptions for each element is also present after each "//".
+```
+
+## Recommendation:
+```
+- Ferox is the best bank due to the Rejuv. Pool.
+- If you are fighting something like Abyssal demons use the experimental spot. Gives the best results.
+- Big monsters like Dragons and Kalphites might be a bit buggy due to their size.
 - Check the official OSRS Wiki for more info:
-https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads
+https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads 
+```
+
+## Credits
+```
+ _  ___ _    _    _           _ _
+| |/ (_) |__| |__(_)__ _ _ __(_) |___
+| ' <| | (_-< '_ \ / _` | '_ \ | (_-<
+|_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
+                   |___/|_| THE PROFESSOR
+        Dark Altar Reanimate
+
+            -[Credits]-
+   @SimonK, @Skunkworks, @Student,
+@Club XJ, @sebastiaan, @CanadianJames, @TazE
+
+- A big thanks to all the amazing wasp devs who answered my #chat questions!
+- Ty to SimonK for letting me rebuild/remake his old reanimate script!
+- Ty to Majora for collecting the osrs world numbers per region.
+- Ty to Torwent and Olly for the procedure/function recommendations, specialy with the ferox pool.
 ```
 </details>
 <hr>
@@ -67,7 +103,7 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
  
 ## Requirements:
 ```pascal
-SoonTM
+Hey Seb nice mole pet btw
 ```
 </details>
 
