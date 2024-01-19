@@ -15,20 +15,20 @@ I recommend for you to watch this video before you use this script:<br> https://
  
 ## Features:
 ```
-- Uses a Custom World Hopper Handler (**TLDR:** You can choose your desired world regions or you can use your own CUSTOM list):
+- Uses a Custom World Hopper Handler (**TLDR:** You can choose your desired world regions, or you can use your own CUSTOM list):
   -- You can Enable/Disable World Hopping.
   -- You can Enable/Disable Total Level World Hopping.
   -- Regions: EU, NAEast, NAWest, AUS.
   -- Configurable CUSTOM World List.
 
 - Automatically:
-  -- Detects if the user has a anti-fire shield equiped to fight Ensouled Dragon Heads.
+  -- Detects if the user has a anti-fire shield equipped to fight Ensouled Dragon Heads.
   -- Detects if the user is wearing a Serpentine helm to fight Ensouled Kalphite Heads.
-     --- In case the user is not wearing it it will withdraw the Antipoison you specified in the settings.
+     --- In case the user is not wearing it, then it will withdraw the Antipoison you specified in the settings.
   -- Uses the correct Prayer Protection if it's enabled in the settings.
      --- Make sure you have the required Prayer level to use Protect from Melee and/or Protect from Missile (if you don't it will also detect this).
   -- Detect most stuff that you might do wrong and stop the script, telling you what was the cause.
-  -- Teleports to the bank you specified in the settings if your health is bellow 30%.
+  -- Teleports to the bank you specified in the settings if your health is below 30%.
 
 - [3] Supported Bank locations:
   -- Castle Wars, Ferox Enclave, Grand Exchange.
@@ -36,16 +36,16 @@ I recommend for you to watch this video before you use this script:<br> https://
 - [2] Supported Travel methods:
   -- Arceus Library and Fairy Ring (Requires Ardougne Cape 1..4);
     --- Automatically detects if you have Elite Lumbridge Diaries before using the Fairy Ring travel method.
-      ---- You also require to have pre-purchased the fairy ring unlock. (Check the osrs wiki if you are unsure).
+      ---- You also require having pre-purchased the fairy ring unlock. (Check the osrs wiki if you are unsure).
 
 - You can Enable/Disable use of Food and/or Prayer pots.
   -- You can also specify what food to use and the amount.
 
 - Experimental Summoning spot (Works best with 1 tile sized Monsters).
 
-- For biger monsters it will use a different method of tile clicking to Summon the Ensouled Heads to avoid issues. (ONLY if ExperimentalSummonSpot is disable).
+- For bigger monsters, it will use a different method of tile clicking to Summon the Ensouled Heads to avoid issues. (ONLY if ExperimentalSummonSpot is disabled).
 
-- You can make extra changes if you know what you are doing inside of the "Init" procedure. 
+- You can make extra changes if you know what you are doing inside the "Init" procedure. 
 ```
 ## Requirements:
 ```
@@ -58,13 +58,13 @@ I recommend for you to watch this video before you use this script:<br> https://
 - Script Settings are located between:
 {............-= [   -SETTINGS START-   ] =-............}
 {.............-= [   -SETTINGS END-   ] =-.............}
-- Instructions/Descriptions for each element is also present after each "//".
+- Instructions/Descriptions for each element are also present after each "//".
 ```
 
 ## Recommendation:
 ```
 - Ferox is the best bank due to the Rejuv. Pool.
-- If you are fighting something like Abyssal demons use the experimental spot. Gives the best results.
+- If you are fighting something like Abyssal demons, use the experimental spot. Gives the best results.
 - Big monsters like Dragons and Kalphites might be a bit buggy due to their size.
 - Check the official OSRS Wiki for more info:
 https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads 
@@ -87,7 +87,7 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 - Ty to SimonK for letting me rebuild/remake his old reanimate script!
 - Ty to Majora for collecting the osrs world numbers per region.
 - Ty to Unit for testing the script.
-- Ty to Torwent and Olly for the procedure/function recommendations, specialy with the ferox pool.
+- Ty to Torwent and Olly for the procedure/function recommendations, specially  with the ferox pool.
 ```
 </details>
 <hr>
