@@ -21,6 +21,7 @@ begin Login.PlayerIndex := 0; end;
  *- A big thanks to all the amazing wasp devs who answered my #chat questions!
  *- Ty to SimonK for letting me rebuild/remake his old reanimate script!
  *- Ty to Majora for collecting the osrs world numbers per region.
+ *- Ty to Unit for testing the script.
  *- Ty to Torwent and Olly for the procedure/function recommendations, specialy with the ferox pool.
 
  *- You can also find all my present/future script infos in my github:
@@ -700,6 +701,7 @@ procedure ToZeah_FairyRing;
       begin
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
+            writeln('Clicking the Ferox Pool of Refreshment');
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
@@ -746,6 +748,7 @@ procedure ToZeah_ArceusLibrary;
         begin
           While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
+            writeln('Clicking the Ferox Pool of Refreshment');
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
