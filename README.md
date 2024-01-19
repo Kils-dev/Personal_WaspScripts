@@ -86,6 +86,7 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 - A big thanks to all the amazing wasp devs who answered my #chat questions!
 - Ty to SimonK for letting me rebuild/remake his old reanimate script!
 - Ty to Majora for collecting the osrs world numbers per region.
+- Ty to Unit for testing the script.
 - Ty to Torwent and Olly for the procedure/function recommendations, specialy with the ferox pool.
 ```
 </details>
