@@ -70,7 +70,7 @@ I recommend for you to watch this video before you use this script:<br> https://
 https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensouled_heads 
 ```
 
-## Credits
+## Credits/Script Signature
 ```
  _  ___ _    _    _           _ _
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
