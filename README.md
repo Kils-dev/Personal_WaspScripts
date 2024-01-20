@@ -4,7 +4,7 @@
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
 | ' <| | (_-< '_ \ / _` | '_ \ | (_-<
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
-                   |___/|_| THE PROFESSOR
+                   |___/|_| 
  ```
 
 # Current Public Scripts:
@@ -76,7 +76,7 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
 | ' <| | (_-< '_ \ / _` | '_ \ | (_-<
 |_|\_\_|_/__/_.__/_\__, | .__/_|_/__/
-                   |___/|_| THE PROFESSOR
+                   |___/|_| 
         Dark Altar Reanimate
 
             -[Credits]-
