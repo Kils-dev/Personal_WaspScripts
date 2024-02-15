@@ -97,15 +97,15 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
  
 ## Requirements:
 ```pascal
-Hey Seb nice mole pet btw
+TBD.
 ```
 </details>
 <hr>
 <details>
-<summary>????.simba</summary>
+<summary>AIOSlayer.simba (colab with Sebastiaan and ClubXJ)</summary>
  
-## Easter Egg:
-![alt text](https://cdn.discordapp.com/attachments/795609366270574603/1191089170484047992/image.png?ex=65b6a03b&is=65a42b3b&hm=e8013c78bb444683759ce75ec1c8841cf630b345688aff8a7eaa2e78d9fe41b8&)
+## TBD:
+
 </details>
 
 # More info:
