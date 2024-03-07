@@ -269,26 +269,26 @@ end;
 
 procedure DragonProtectionShieldHandler;
 var
-i : int32;
-Found: Boolean;
-DragonFireShieldArray := ['Anti-dragon shield', 'Dragonfire shield',
-                          'Dragonfire ward', 'Ancient wyvern shield'];
+  i: Integer;
+  Found: Boolean;
+  DragonFireShieldArray: array[0..3] of string;
 begin
-  if (HeadName = 'Ensouled dragon head') then
+  DragonFireShieldArray[0] := 'Anti-dragon shield';
+  DragonFireShieldArray[1] := 'Dragonfire shield';
+  DragonFireShieldArray[2] := 'Dragonfire ward';
+  DragonFireShieldArray[3] := 'Ancient wyvern shield';
+
+  Found := False;
+
+  for i := 0 to High(DragonFireShieldArray) do
   begin
-    for i := 0 to High(DragonFireShieldArray) do
-    begin
-      Found := Equipment.ContainsItem(DragonFireShieldArray[i]);
-      if Found then
-        begin
-          Writeln('Found ', DragonFireShieldArray[i], ' in the Shield slot');
-        end
-      else
-        begin
-          Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with any anti-fire shield before starting');
-        end;
-    end;
+    Found := Equipment.ContainsItem(DragonFireShieldArray[i]);
+    if Found then
+      Break;
   end;
+
+  if not Found then
+    Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with any anti-fire shield before starting');
 end;
 
 procedure UselessBloatinc;
@@ -627,7 +627,7 @@ case EnsouledHeadHandler of
 
   ERSSPELL.ADEPT_REANIMATION:
     begin
-      if Inventory.CountItemStack('Bodyrune') < 100 then
+      if Inventory.CountItemStack('Body rune') < 100 then
         begin
           if not bank.ContainsItem(Bodyrune) then
             Terminatescript('Could not find/ran out [Body rune] in bank, stoping script.');
