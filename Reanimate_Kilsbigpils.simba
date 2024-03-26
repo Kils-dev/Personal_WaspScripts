@@ -1,6 +1,7 @@
 {$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '1'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
+{$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
 {$I WaspLib/osr/handlers/teleports/transport.simba}
 begin Login.PlayerIndex := 0; end;
 {
@@ -308,6 +309,9 @@ end;
 procedure Init();
   begin
   ClearDebug();
+  RSClient.Setup();
+  Antiban.Setup();
+  Antiban.SetupBiometrics();
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
@@ -379,7 +383,7 @@ procedure Init();
     if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
 
-    if (LumbridgeDiary = 4) then
+   { if (LumbridgeDiary = 4) then
         Transport.Init(EFairyTeleportItem.DIARY, ArdyCloak)
       else
         begin
@@ -390,7 +394,7 @@ procedure Init();
             'Lunar staff':
               Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
           end;
-        end;
+        end; }
 end;
 
 function InFeroxEnclave(): Boolean;
