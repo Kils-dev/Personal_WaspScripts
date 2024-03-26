@@ -102,7 +102,7 @@ TBD.
 </details>
 <hr>
 <details>
-<summary>AIOSlayer.simba (colab with Sebastiaan and ClubXJ)</summary>
+<summary>AIOSlayer.simba</summary>
  
 ## TBD:
 
