@@ -704,6 +704,7 @@ procedure ToZeah_FairyRing;
       begin
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
+            RSMouseZoom.SetZoomLevel(Random(20, 40));
             writeln('Clicking the Ferox Pool of Refreshment');
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
