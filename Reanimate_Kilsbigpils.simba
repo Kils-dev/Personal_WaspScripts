@@ -732,10 +732,9 @@ procedure ToZeah_FairyRing;
     writeln('Teleporting to Ardy Monastary');
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
-    RSMouseZoom.SetZoomLevel(Random(2, 15));
     Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
     Waituntil(INZeahArea, 1500, 6000);
-    //RSMouseZoom.SetZoomLevel(Random(2, 15));
+    RSMouseZoom.SetZoomLevel(Random(2, 15));
     if (LumbridgeDiary < 4) then
     begin
         writeln('Equiping weapon: ', MainWeapon);
