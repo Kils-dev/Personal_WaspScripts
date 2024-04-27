@@ -1,9 +1,9 @@
-{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '1'}
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '2'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
-{$I WaspLib/osr/handlers/teleports/transport.simba}
-begin Login.PlayerIndex := 0; end;
+{$I WaspLib/optional/handlers/poh.simba}
+{$I WaspLib/optional/handlers/teleports/transport.simba}
 {
  _  ___ _    _    _           _ _
 | |/ (_) |__| |__(_)__ _ _ __(_) |___
@@ -29,6 +29,8 @@ Const
   UseProtectionPrayer := True; // Want to use Protection Prayers?
   UsePrayerPots       := False; // Want to use Prayer Pots?
   Usefood             := False; // Want to use food?
+  UsePouch            := True; // You are responsible to fill the pouch with the required runes
+  Pouch               := 'Rune pouch'; // (if UsePouch := True) - type what pouch you want to use.
   FoodName            := 'Shark'; // (if Usefood := True) (case sensitive) - Shark, Manta ray, etc
   FoodAmount          := 4; // (if Usefood := True) - Amount to withdraw from bank
   AntiPoison          := 'Superantipoison(4)'; // Don't edit if not fighting kalphite heads
@@ -274,6 +276,10 @@ var
   Found: Boolean;
   DragonFireShieldArray: array[0..3] of string;
 begin
+if not (HeadName = 'Ensouled dragon head') then
+exit
+else
+begin
   DragonFireShieldArray[0] := 'Anti-dragon shield';
   DragonFireShieldArray[1] := 'Dragonfire shield';
   DragonFireShieldArray[2] := 'Dragonfire ward';
@@ -290,6 +296,7 @@ begin
 
   if not Found then
     Terminatescript('Did not find any of the required shields in the Shield slot, please equip your player with any anti-fire shield before starting');
+end;
 end;
 
 procedure UselessBloatinc;
@@ -382,19 +389,6 @@ procedure Init();
 
     if Options.GetBrightnessLevel < 100 then
     Options.SetMaxBrightness;
-
-   { if (LumbridgeDiary = 4) then
-        Transport.Init(EFairyTeleportItem.DIARY, ArdyCloak)
-      else
-        begin
-          case FairyRingStaff of
-            'Dramen staff':
-              Transport.Init(EFairyTeleportItem.DRAMEN, ArdyCloak);
-
-            'Lunar staff':
-              Transport.Init(EFairyTeleportItem.LUNAR, ArdyCloak);
-          end;
-        end; }
 end;
 
 function InFeroxEnclave(): Boolean;
@@ -475,10 +469,11 @@ var
   Soulrune      := TRSBankItem.Setup('Soul rune', 100, False);
   Bloodrune     := TRSBankItem.Setup('Blood rune', 100, False);
   Naturerune    := TRSBankItem.Setup('Nature rune', 100, False);
+  PouchItem     := TRSBankItem.Setup(Pouch, 1, False);
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  if not RSClient.IsLoggedIn then exit;
+  //if not RSClient.IsLoggedIn then exit;
   Writeln('Time to Bank');
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
@@ -617,6 +612,19 @@ begin
     end;
 
 // Bank withdraw of runes depending on the spell used
+if UsePouch and not(Inventory.ContainsItem(Pouch)) then
+begin
+  if not bank.ContainsItem(PouchItem) then
+    begin
+      Terminatescript('Could not find [' + Pouch + '] in bank, stoping script.');
+      writeln('Withdrawing 1x ', Pouch);
+      Bank.WithdrawItem(PouchItem, False);
+      waituntil(Inventory.ContainsItem(Pouch), 250, 5000);
+    end;
+end;
+
+if not UsePouch then
+begin
 case EnsouledHeadHandler of
   ERSSPELL.BASIC_REANIMATION:
     begin
@@ -667,7 +675,6 @@ case EnsouledHeadHandler of
         end;
     end;
 end;
-
   if Inventory.CountItemStack('Nature rune') < 50 then
     begin
       if not bank.ContainsItem(Naturerune) then
@@ -675,6 +682,7 @@ end;
 
       Bank.WithdrawItem(Naturerune, False);
     end;
+end;
 
   if (Inventory.CountItem(HeadName) <= 6) or not(Inventory.ContainsItem(HeadName)) then
   begin
@@ -691,7 +699,7 @@ end;
 
 procedure ToZeah_FairyRing;
   begin
-    if not RSClient.IsLoggedIn then exit;
+    //if not RSClient.IsLoggedIn then exit;
     if InFeroxEnclave then
       begin
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
@@ -724,9 +732,10 @@ procedure ToZeah_FairyRing;
     writeln('Teleporting to Ardy Monastary');
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
+    RSMouseZoom.SetZoomLevel(Random(2, 15));
     Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
     Waituntil(INZeahArea, 1500, 6000);
-    RSMouseZoom.SetZoomLevel(Random(2, 15));
+    //RSMouseZoom.SetZoomLevel(Random(2, 15));
     if (LumbridgeDiary < 4) then
     begin
         writeln('Equiping weapon: ', MainWeapon);
@@ -738,7 +747,7 @@ procedure ToZeah_FairyRing;
 
 procedure ToZeah_ArceusLibrary;
   begin
-    if not RSClient.IsLoggedIn then exit;
+    //if not RSClient.IsLoggedIn then exit;
       if InFeroxEnclave then
         begin
           While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
@@ -757,7 +766,7 @@ procedure ToZeah_ArceusLibrary;
 
 procedure ToCwars;
   begin
-    if not RSClient.IsLoggedIn then exit;
+    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to Castle Wars');
     Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
     Waituntil(InCWarsArea, 250, 8000);
@@ -765,7 +774,7 @@ procedure ToCwars;
 
 procedure ToFeroxEnclave;
   begin
-    if not RSClient.IsLoggedIn then exit;
+    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to Ferox Enclave');
     Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
     Waituntil(InFeroxEnclave, 250, 8000);
@@ -773,7 +782,7 @@ procedure ToFeroxEnclave;
 
 procedure ToGE;
   begin
-    if not RSClient.IsLoggedIn then exit;
+    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to the Grand Exchange');
     Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
     Waituntil(InGE, 250, 8000);
@@ -806,7 +815,7 @@ procedure Summon;
 var
   HeadCount  : Integer;
 begin
-  if not RSClient.IsLoggedIn then exit;
+  //if not RSClient.IsLoggedIn then exit;
 
   if UsePrayerPots and (Minimap.GetPrayerPercent <= 20) and (Inventory.ContainsConsumable(ERSConsumable.PRAYER)) then
     begin
@@ -945,10 +954,7 @@ begin
   else writeln('Sleep: - DISABLED -');
   writeln('=====================================');
   if SRL.dice(1) then // Yoink from the roo man, made by student also
-  WriteLn('Seb still has no mole pet KEKW');
-
-  if SRL.dice(1) then // Yoink from the roo man, made by student also
-  WriteLn('Easter egg');
+  WriteLn('Easter egg - Kilsbigpils up in the hills');
 end;
 
 procedure MainLoop;
