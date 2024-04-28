@@ -704,7 +704,6 @@ procedure ToZeah_FairyRing;
       begin
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
-            RSMouseZoom.SetZoomLevel(Random(20, 40));
             writeln('Clicking the Ferox Pool of Refreshment');
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
@@ -731,6 +730,7 @@ procedure ToZeah_FairyRing;
 
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
+    RSMouseZoom.SetZoomLevel(Random(15, 30));
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
     Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
