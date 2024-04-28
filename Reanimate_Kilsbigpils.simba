@@ -2,7 +2,6 @@
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
-{$I WaspLib/optional/handlers/poh.simba}
 {$I WaspLib/optional/handlers/teleports/transport.simba}
 {
  _  ___ _    _    _           _ _
@@ -276,8 +275,8 @@ var
   Found: Boolean;
   DragonFireShieldArray: array[0..3] of string;
 begin
-if not (HeadName = 'Ensouled dragon head') then
-exit
+  if not (HeadName = 'Ensouled dragon head') then
+    exit
 else
 begin
   DragonFireShieldArray[0] := 'Anti-dragon shield';
@@ -317,7 +316,7 @@ procedure Init();
   begin
   ClearDebug();
   RSClient.Setup();
-  Antiban.Setup();
+  //Antiban.Setup();
   Antiban.SetupBiometrics();
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
@@ -330,7 +329,7 @@ procedure Init();
   DragonProtectionShieldHandler;
 
   if Equipment.ContainsItem('Serpentine helm') then
-  HasSerpHelm := true;
+  HasSerpHelm := True;
 
   if MainWeapon = 'Unarmed' then
   Terminatescript('No weapon equiped. Please make sure to equip your player before starting the script');
@@ -367,6 +366,7 @@ procedure Init();
     WLSettings.RemoteInput.BlockInput := False;
     WLSettings.Antiban.GameTabs       := True;
     WLSettings.Antiban.Chat           := False;
+    WLSettings.Antiban.Camera         := False;
 
     Mouse.MissChance                  := Random(6,15);
     Mouse.Speed                       := Random(15,22);
@@ -377,8 +377,8 @@ procedure Init();
     Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
     Antiban.AddTask(SRL.SkewedRand(13, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
     Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
-    Antiban.AddTask(SRL.SkewedRand(45, 30, 90) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
-    Antiban.AddTask(SRL.SkewedRand(15, 5, 30) * ONE_MINUTE, @Antiban.RandomRotate, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(35, 20, 60) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(10, 5, 15) * ONE_MINUTE, @Antiban.RandomRotate, 0.3);
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
@@ -733,7 +733,8 @@ procedure ToZeah_FairyRing;
     RSMouseZoom.SetZoomLevel(Random(15, 30));
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
-    Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
+    //Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
+    FairyRing.WalkTeleport('CIS');
     Waituntil(INZeahArea, 1500, 6000);
     RSMouseZoom.SetZoomLevel(Random(2, 15));
     if (LumbridgeDiary < 4) then
@@ -942,6 +943,7 @@ begin
   XPEarned := XPBar.Read - StartXP;
   UselessBloatinc;
   writeln('Time running: ', SRL.TimeRunning);
+  writeln('Using: ', HeadName);
   writeln('Reanimated: ', HeadCountRep, ' ensouled heads');
   writeln('Reanimations hr: ', Round(((HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
   writeln('Earned: ', SRL.FormatNumber(XPEarned), ' Exp');
