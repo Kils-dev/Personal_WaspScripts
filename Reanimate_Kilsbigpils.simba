@@ -1,4 +1,4 @@
-{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '2'}
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '3'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
@@ -312,12 +312,38 @@ begin
   writeln('=====================================');
 end;
 
+procedure AntibanStuff();
+begin
+    WLSettings.Antiban.Enabled        := True;
+    WLSettings.Breaks                 := True;
+    WLSettings.Sleep.Enabled          := False;
+    WLSettings.RemoteInput.Enabled    := True;
+    WLSettings.RemoteInput.BlockInput := False;
+    WLSettings.Antiban.GameTabs       := True;
+    WLSettings.Antiban.Chat           := True;
+    WLSettings.Antiban.Camera         := False;
+
+    Mouse.MissChance                  := Random(6,15);
+    Mouse.Speed                       := Random(15,22);
+    Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
+
+    Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
+    Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
+    Antiban.AddTask(SRL.SkewedRand(13, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(35, 20, 60) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
+    Antiban.AddTask(SRL.SkewedRand(10, 5, 15) * ONE_MINUTE, @Antiban.RandomRotate, 0.3);
+    Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
+                       ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
+                       ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
+    writeln('Setting up Antiban');
+end;
 procedure Init();
   begin
   ClearDebug();
-  RSClient.Setup();
+  //RSClient.Setup();
   //Antiban.Setup();
-  Antiban.SetupBiometrics();
+  //Antiban.SetupBiometrics();
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
@@ -359,31 +385,6 @@ procedure Init();
     RSW.Setup('world');
     RSW.AdaptiveWalk                  := True;
 
-    WLSettings.Antiban.Enabled        := True;
-    WLSettings.Breaks                 := True;
-    WLSettings.Sleep.Enabled          := False;
-    WLSettings.RemoteInput.Enabled    := True;
-    WLSettings.RemoteInput.BlockInput := False;
-    WLSettings.Antiban.GameTabs       := True;
-    WLSettings.Antiban.Chat           := False;
-    WLSettings.Antiban.Camera         := False;
-
-    Mouse.MissChance                  := Random(6,15);
-    Mouse.Speed                       := Random(15,22);
-    Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
-
-    // - Antiban tasks - //
-    Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(5, 2, 12) * ONE_MINUTE);
-    Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
-    Antiban.AddTask(SRL.SkewedRand(13, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
-    Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
-    Antiban.AddTask(SRL.SkewedRand(35, 20, 60) * ONE_MINUTE, @Antiban.LoseFocus, 0.3);
-    Antiban.AddTask(SRL.SkewedRand(10, 5, 15) * ONE_MINUTE, @Antiban.RandomRotate, 0.3);
-    Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
-                       ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
-                       ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
-    // - Antiban tasks - //
-
     Magic.FindSpell(EnsouledHeadHandler, HoverSpell);
     Combat.SetAutoRetaliate(True);
 
@@ -423,7 +424,7 @@ end;
 
 procedure WalkToSummon;
 begin
-  if not RSClient.IsLoggedIn then exit;
+  //if not RSClient.IsLoggedIn then exit;
 
   if ExperimentalSummonSpot then
     begin
@@ -730,10 +731,9 @@ procedure ToZeah_FairyRing;
 
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
-    RSMouseZoom.SetZoomLevel(Random(15, 30));
+    RSMouseZoom.SetZoomLevel(Random(30, 50));
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
-    //Transport.run(RSTeleports.CIS_NORTH_OF_THE_ARCEUUS_LIBRARY);
     FairyRing.WalkTeleport('CIS');
     Waituntil(INZeahArea, 1500, 6000);
     RSMouseZoom.SetZoomLevel(Random(2, 15));
@@ -817,6 +817,8 @@ var
   HeadCount  : Integer;
 begin
   //if not RSClient.IsLoggedIn then exit;
+  if not(ChatButtons.GetActive = ERSChatButton.GAME_CHAT) then
+    ChatButtons.Open(ERSChatButton.GAME_CHAT);
 
   if UsePrayerPots and (Minimap.GetPrayerPercent <= 20) and (Inventory.ContainsConsumable(ERSConsumable.PRAYER)) then
     begin
@@ -949,7 +951,7 @@ begin
   writeln('Earned: ', SRL.FormatNumber(XPEarned), ' Exp');
   writeln('Currently making: ', SRL.FormatNumber(((XPEarned) * 3600) / (GetTimeRunning / 1000)),' Exp/Hr');
   writeln('Total GP cost: ', SRL.FormatNumber(CheckPrice * HeadCountRep));
-  writeln('GP cost hr: ', SRL.FormatNumber((CheckPrice * HeadCountRep) / (GetTimeRunning / 1000)));
+  writeln('GP cost hr: ', SRL.FormatNumber(((CheckPrice * HeadCountRep) * 3600) / (GetTimeRunning / 1000)));
   if (WLSettings.Breaks) then writeln('Next Break in: ', Antiban.TimeUntilBreak(Antiban.Breaks[0]))
   else writeln('Breaks: - DISABLED -');
   if (WLSettings.Sleep.Enabled) then writeln('Sleep: - ENABLED -')
@@ -1033,6 +1035,7 @@ begin
   if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
   Init;
+  AntibanStuff;
 
   if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either at the Ferox Enclave,
