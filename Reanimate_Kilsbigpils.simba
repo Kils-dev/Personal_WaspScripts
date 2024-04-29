@@ -1,4 +1,4 @@
-{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '3'}
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '4'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
@@ -588,7 +588,7 @@ begin
       Bank.WithdrawItem(PrayerPot, False);
     end;
 
-  if Usefood and not(Inventory.ContainsItem(FoodName)) then
+  if Usefood and (Inventory.CountItem(FoodName) < FoodAmount) then
     begin
       if not bank.ContainsItem(FoodNameSTP) then
         Terminatescript('Could not find/ran out [' + FoodName + '] in bank, stoping script.');
@@ -709,39 +709,66 @@ procedure ToZeah_FairyRing;
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
-      end;
+    end;
 
     if (BankingLocation = "Ferox Enclave") or (BankingLocation = "Castle Wars") then
+      begin
       if not(Inventory.ContainsItem('Ring of dueling(1..8)')) then
         begin
           writeln('Missing Ring of Dueling, going back to bank');
           Banking;
         end;
+    end;
 
     if (BankingLocation = "Grand Exchange") then
+      begin
       if not(Inventory.ContainsItem('Ring of wealth(1..5)')) then
         begin
           writeln('Missing Ring of Wealth, going back to bank');
           Banking;
         end;
+    end;
 
-      wait(1500,2000);
-      if (LumbridgeDiary < 4) then
-        Waituntil(Inventory.ClickItem(FairyRingStaff), 500, 3000);
+    wait(1500,2000);
+
+    if (LumbridgeDiary < 4) then
+      begin
+        writeln('Equiping Staff: ', FairyRingStaff);
+        while not Equipment.ContainsItem(FairyRingStaff)do
+          begin
+            wait(2000);
+            Inventory.Open();
+            wait(1500);
+            Inventory.ClickItem(FairyRingStaff);
+            wait(2000);
+          end;
+    end;
 
     writeln('Traveling to Zeah using the FairyRing');
     writeln('Teleporting to Ardy Monastary');
-    RSMouseZoom.SetZoomLevel(Random(30, 50));
+    RSMouseZoom.SetZoomLevel(Random(20, 40));
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
-    FairyRing.WalkTeleport('CIS');
-    Waituntil(INZeahArea, 1500, 6000);
+    writeln('Walking to FairyRing');
+
+    while InMonasteryArea do
+      begin
+        FairyRing.WalkTeleport('CIS');
+        Waituntil(INZeahArea, 2500, 6000);
+      end;
     RSMouseZoom.SetZoomLevel(Random(2, 15));
+
     if (LumbridgeDiary < 4) then
     begin
         writeln('Equiping weapon: ', MainWeapon);
-        Inventory.Open;
-        Waituntil(Inventory.ClickItem(MainWeapon), 2000, 4500);
+        while not Equipment.ContainsItem(MainWeapon) do
+          begin
+            wait(2000);
+            Inventory.Open();
+            wait(1500);
+            Inventory.ClickItem(MainWeapon);
+            wait(2000);
+          end;
     end;
     HeadCountRep := HeadCountRep + Inventory.CountItem(HeadName);
   end;
@@ -963,7 +990,7 @@ end;
 
 procedure MainLoop;
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
+  //if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
   Failsafe;
 
