@@ -1,4 +1,4 @@
-{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '4'}
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '4.1'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
@@ -60,7 +60,7 @@ var
 
 Const
   FeroxEnclaveArea : Tbox = [7773, 1811, 8167, 2075];
-  MonasteryArea    : TBox = [5697, 3478, 6092, 3660];
+  MonasteryArea    : TBox = [5638, 3383, 6157, 3672];
   SummonArea       : Tbox = [2052, 885, 2321, 976];
   CWarsArea        : Tbox = [5136, 4056, 5173, 4120];
   ZeahArea         : TBox = [1854, 899, 2263, 1139];
@@ -323,7 +323,7 @@ begin
     WLSettings.Antiban.Chat           := True;
     WLSettings.Antiban.Camera         := False;
 
-    Mouse.MissChance                  := Random(6,15);
+    Mouse.MissChance                  := Random(3,10);
     Mouse.Speed                       := Random(15,22);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
 
@@ -341,9 +341,6 @@ end;
 procedure Init();
   begin
   ClearDebug();
-  //RSClient.Setup();
-  //Antiban.Setup();
-  //Antiban.SetupBiometrics();
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
@@ -424,8 +421,6 @@ end;
 
 procedure WalkToSummon;
 begin
-  //if not RSClient.IsLoggedIn then exit;
-
   if ExperimentalSummonSpot then
     begin
       writeln('Walking to the Summoning Spot (Experimental)');
@@ -474,7 +469,6 @@ var
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  //if not RSClient.IsLoggedIn then exit;
   Writeln('Time to Bank');
 
   if (Minimap.GetHPPercent() <= 85) and Inventory.ContainsConsumable(ERSConsumable.FOOD) then
@@ -700,7 +694,6 @@ end;
 
 procedure ToZeah_FairyRing;
   begin
-    //if not RSClient.IsLoggedIn then exit;
     if InFeroxEnclave then
       begin
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
@@ -775,7 +768,6 @@ procedure ToZeah_FairyRing;
 
 procedure ToZeah_ArceusLibrary;
   begin
-    //if not RSClient.IsLoggedIn then exit;
       if InFeroxEnclave then
         begin
           While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
@@ -785,6 +777,25 @@ procedure ToZeah_ArceusLibrary;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
         end;
+
+      if (BankingLocation = "Ferox Enclave") or (BankingLocation = "Castle Wars") then
+      begin
+      if not(Inventory.ContainsItem('Ring of dueling(1..8)')) then
+        begin
+          writeln('Missing Ring of Dueling, going back to bank');
+          Banking;
+        end;
+    end;
+
+    if (BankingLocation = "Grand Exchange") then
+      begin
+      if not(Inventory.ContainsItem('Ring of wealth(1..5)')) then
+        begin
+          writeln('Missing Ring of Wealth, going back to bank');
+          Banking;
+        end;
+    end;
+
     writeln('Traveling to Zeah using the Arceus Library teleport');
     Magic.CastSpell(ERSSPELL.ARCEUUS_LIBRARY_TELEPORT);
     Waituntil(INZeahArea, 500, 6000);
@@ -794,7 +805,6 @@ procedure ToZeah_ArceusLibrary;
 
 procedure ToCwars;
   begin
-    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to Castle Wars');
     Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
     Waituntil(InCWarsArea, 250, 8000);
@@ -802,7 +812,6 @@ procedure ToCwars;
 
 procedure ToFeroxEnclave;
   begin
-    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to Ferox Enclave');
     Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
     Waituntil(InFeroxEnclave, 250, 8000);
@@ -810,7 +819,6 @@ procedure ToFeroxEnclave;
 
 procedure ToGE;
   begin
-    //if not RSClient.IsLoggedIn then exit;
     writeln('Teleporting to the Grand Exchange');
     Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
     Waituntil(InGE, 250, 8000);
@@ -843,7 +851,6 @@ procedure Summon;
 var
   HeadCount  : Integer;
 begin
-  //if not RSClient.IsLoggedIn then exit;
   if not(ChatButtons.GetActive = ERSChatButton.GAME_CHAT) then
     ChatButtons.Open(ERSChatButton.GAME_CHAT);
 
@@ -990,8 +997,7 @@ end;
 
 procedure MainLoop;
 begin
-  //if not RSClient.IsLoggedIn then Login.LoginPlayer;
-
+// Main LOOOOOOOOOOPPPPPPP
   Failsafe;
 
   if InSummonArea then
