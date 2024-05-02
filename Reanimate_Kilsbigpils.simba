@@ -1,4 +1,4 @@
-{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '4.1'}
+{$UNDEF SCRIPT_REVISION}{$DEFINE SCRIPT_REVISION := '5.1'}
 {$I SRL-T/osr.simba}
 {$I WaspLib/osr.simba}
 {$I WaspLib/optional/interfaces/mainscreen/fairyring.simba}
@@ -13,7 +13,7 @@
 
             -[Credits]-
 @SimonK, @Skunkworks, @Student, @Club XJ,
-   @sebastiaan, @CanadianJames, @TazE       }
+@sebastiaan, @CanadianJames, @TazE, @3Garrett3       }
 
 { *- (!-WARNING-!), don't touch stuff from (SETTINGS) that you wont use/need.
 You might break the script.   }
@@ -336,10 +336,37 @@ begin
     Antiban.Skills := [ERSSkill.PRAYER, ERSSkill.TOTAL, ERSSKILL.HITPOINTS,
                        ERSSKILL.DEFENCE, ERSSKILL.RANGE, ERSSKILL.DEFENCE,
                        ERSSKILL.ATTACK, ERSSKILL.STRENGTH];
-    writeln('Setting up Antiban');
 end;
-procedure Init();
+// THANK YOU 3Garrett3 THE FLIPPER MAN //
+function TRSLogin.AtLobby() : Boolean;
+begin
+  result := Self.FindText('CLICK HERE TO PLAY');
+end;
+
+function TRSLogin.HandleLobby() : Boolean;
+begin
+  if self.AtLobby() then
   begin
+    Self.DebugLn('At lobby screen');
+    exit(Self.EnterGame());
+  end;
+end;
+// THANK YOU 3Garrett3 THE FLIPPER MAN //
+
+procedure Init();
+begin
+  // THANK YOU 3Garrett3 THE FLIPPER MAN //
+  if not RSClient.IsLoggedIn() then
+  begin
+    writeln('Detected logout in Run Loop');
+
+    if Login.AtLobby() then
+      Login.HandleLobby()
+    else
+      Login.LoginPlayer();
+  end;
+  // THANK YOU 3Garrett3 THE FLIPPER MAN //
+
   ClearDebug();
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
@@ -379,7 +406,7 @@ procedure Init();
 
     StartXP                           := XPBar.read;
 
-    RSW.Setup('world');
+    RSW.Setup('world'); //Ik torwent, don't kill me
     RSW.AdaptiveWalk                  := True;
 
     Magic.FindSpell(EnsouledHeadHandler, HoverSpell);
@@ -699,6 +726,7 @@ procedure ToZeah_FairyRing;
         While not(Minimap.GetPrayerPercent = 100) or not(Minimap.GetHPPercent = 100) or not(Minimap.GetRunEnergy = 100) do
           begin
             writeln('Clicking the Ferox Pool of Refreshment');
+            RSMouseZoom.SetZoomLevel(Random(25, 45));
             RSObjects.FeroxPoolOfRefreshment.WalkClick;
             Waituntil((Minimap.GetPrayerPercent = 100) and (Minimap.GetHPPercent = 100) and (Minimap.GetRunEnergy = 100), 1500, 6000);
           end;
@@ -742,7 +770,7 @@ procedure ToZeah_FairyRing;
     RSMouseZoom.SetZoomLevel(Random(20, 40));
     Transport.run(rsteleports.MONASTERY);
     Waituntil(InMonasteryArea, 2500, 7500);
-    writeln('Walking to FairyRing');
+    writeln('Walking to the FairyRing');
 
     while InMonasteryArea do
       begin
@@ -807,21 +835,21 @@ procedure ToCwars;
   begin
     writeln('Teleporting to Castle Wars');
     Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
-    Waituntil(InCWarsArea, 250, 8000);
+    Waituntil(InCWarsArea, 500, 6000);
   end;
 
 procedure ToFeroxEnclave;
   begin
     writeln('Teleporting to Ferox Enclave');
     Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
-    Waituntil(InFeroxEnclave, 250, 8000);
+    Waituntil(InFeroxEnclave, 500, 6000);
   end;
 
 procedure ToGE;
   begin
     writeln('Teleporting to the Grand Exchange');
     Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
-    Waituntil(InGE, 250, 8000);
+    Waituntil(InGE, 500, 6000);
   end;
 
 procedure BankLocationHandler;
@@ -844,7 +872,7 @@ procedure BankLocationHandler;
             ToGE;
             Waituntil(InGE, 500, 4300);
           end;
-        end;
+    end;
   end;
 
 procedure Summon;
@@ -997,7 +1025,6 @@ end;
 
 procedure MainLoop;
 begin
-// Main LOOOOOOOOOOPPPPPPP
   Failsafe;
 
   if InSummonArea then
@@ -1048,6 +1075,18 @@ begin
       WalkToSummon;
       exit;
     end;
+
+  // THANK YOU 3Garrett3 THE FLIPPER MAN //
+  if not RSClient.IsLoggedIn() then
+  begin
+    writeln('Detected logout in Run Loop');
+
+    if Login.AtLobby() then
+      Login.HandleLobby()
+    else
+      Login.LoginPlayer();
+  end;
+  // THANK YOU 3Garrett3 THE FLIPPER MAN //
 end;
 
 // Later implements (ignore)
@@ -1065,8 +1104,6 @@ until not(mainscreen.incombat);
 // Later implements (ignore)
 
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
-
   Init;
   AntibanStuff;
 
@@ -1075,7 +1112,7 @@ begin
   Castle Wars or the Grand Exchange before starting the script");
 
   while true do
-    begin
-      MainLoop;
-    end;
+  begin
+    MainLoop;
+  end;
 end.
