@@ -328,7 +328,7 @@ begin
     Mouse.Speed                       := Random(15,22);
     Mouse.Distribution                := MOUSE_DISTRIBUTION_GAUSS;
 
-    Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(3, 5, 14) * ONE_MINUTE);
+    Antiban.AddBreak(SRL.SkewedRand(37, 10, 90) * ONE_MINUTE, SRL.SkewedRand(3, 5, 14) * ONE_MINUTE, 0.2, 1);
     Antiban.AddSleep('00:30:00', 8 * ONE_HOUR, 0.1, 0.8);
     Antiban.AddTask(SRL.SkewedRand(13, 8, 30) * ONE_MINUTE,  @Antiban.SmallRandomMouse, 0.3);
     Antiban.AddTask(SRL.SkewedRand(33, 15, 90) * ONE_MINUTE, @Antiban.HoverSkills, 0.3);
@@ -443,7 +443,7 @@ end;
 
 procedure WalkToSummon;
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
+  if not RSClient.IsLoggedIn then exit;
 
   if ExperimentalSummonSpot then
     begin
@@ -493,7 +493,7 @@ var
   EnsouledHead  := TRSBankItem.Setup(HeadName, -1, False);
 
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
+  if not RSClient.IsLoggedIn then exit;
 
   Writeln('Time to Bank');
 
@@ -720,7 +720,7 @@ end;
 
 procedure ToZeah_FairyRing;
 begin
-  if not RSClient.IsLoggedIn then Login.LoginPlayer;
+  if not RSClient.IsLoggedIn then exit;
 
     if InFeroxEnclave then
       begin
@@ -804,7 +804,7 @@ begin
 
 procedure ToZeah_ArceusLibrary;
   begin
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
+    if not RSClient.IsLoggedIn then exit;
 
       if InFeroxEnclave then
         begin
@@ -843,7 +843,7 @@ procedure ToZeah_ArceusLibrary;
 
 procedure ToCwars;
   begin
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
+    if not RSClient.IsLoggedIn then exit;
 
     writeln('Teleporting to Castle Wars');
     Transport.handleJewelleryTeleport(RSTeleports.CASTLE_WARS);
@@ -852,7 +852,7 @@ procedure ToCwars;
 
 procedure ToFeroxEnclave;
   begin
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
+    if not RSClient.IsLoggedIn then exit;
 
     writeln('Teleporting to Ferox Enclave');
     Transport.handleJewelleryTeleport(RSTeleports.FEROX_ENCLAVE);
@@ -861,7 +861,7 @@ procedure ToFeroxEnclave;
 
 procedure ToGE;
   begin
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
+    if not RSClient.IsLoggedIn then exit;
 
     writeln('Teleporting to the Grand Exchange');
     Transport.handleJewelleryTeleport(RSTeleports.GRAND_EXCHANGE);
@@ -870,7 +870,7 @@ procedure ToGE;
 
 procedure BankLocationHandler;
   begin
-    if not RSClient.IsLoggedIn then Login.LoginPlayer;
+    if not RSClient.IsLoggedIn then exit;
 
     case BankingLocation of
           'Ferox Enclave':
@@ -1053,36 +1053,35 @@ begin
 
   if InZeahArea and (not inSummonArea) then
     begin
-      Antiban.DoAntiban();
+      Antiban.DoAntiban;
       WalkToSummon;
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (not Inventory.ContainsItem(HeadName)) then
     begin
-      Antiban.DoAntiban();
       Banking;
       ScriptReport;
+      Antiban.DoAntiban;
       exit;
     end;
 
   if (InCWarsArea or InFeroxEnclave or InGE) and (Minimap.GetHPPercent <= 30) then
     begin
       Banking;
-      Antiban.DoAntiban();
+      ScriptReport;
+      Antiban.DoAntiban;
       exit;
     end;
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = 'Fairy Ring') then
     begin
-      Antiban.DoAntiban();
       ToZeah_FairyRing;
       exit;
     end;
 
   if (InCwarsArea or InFeroxEnclave or InGE) and Inventory.ContainsItem(HeadName) and (DarkAltarTeleportMethod = "Arceus Library") then
     begin
-      Antiban.DoAntiban();
       ToZeah_ArceusLibrary;
       exit;
     end;
@@ -1119,6 +1118,17 @@ begin
 
   while true do
   begin
+  // Credits to garret
+  if not RSClient.IsLoggedIn() then
+    begin
+     writeln('Detected logout in Run Loop');
+      if Login.AtLobby() then
+        Login.HandleLobby()
+      else
+        Login.LoginPlayer();
+    end;
+  // Credits to garret
+
     MainLoop;
   end;
 end.
