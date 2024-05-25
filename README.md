@@ -95,20 +95,21 @@ https://oldschool.runescape.wiki/w/Pay-to-play_Prayer_training#Reanimating_ensou
 <details>
 <summary>Sarachnis_Kilsbigpils.simba</summary>
  
-## Requirements:
 ```pascal
-TBD.
+Paused Development.
 ```
 </details>
 <hr>
 <details>
 <summary>AIOSlayer.simba</summary>
  
-## TBD:
+```pascal
+Paused Development.
+```
 
 </details>
 
-# More info:
+# Libs:
 * <b>WaspScripts</b> - https://waspscripts.com/ <br>
 * <b>Wasplib</b> - https://github.com/Torwent/WaspLib <br>
 * <b>SRL-T</b> - https://github.com/Torwent/SRL-T <br>
