@@ -13,7 +13,7 @@
 
             -[Credits]-
 @SimonK, @Skunkworks, @Student, @Club XJ,
-@sebastiaan, @CanadianJames, @TazE       }
+@sebastiaan, @CanadianJames, @TazE, @3Garrett3   }
 
 { *- (!-WARNING-!), don't touch stuff from (SETTINGS) that you wont use/need.
 You might break the script.   }
@@ -315,7 +315,7 @@ end;
 
 procedure AntibanStuff();
 begin
-    WLSettings.Antiban.Enabled        := True;
+    //WLSettings.Antiban.Enabled        := True;
     WLSettings.Breaks                 := True;
     WLSettings.Sleep.Enabled          := False;
     WLSettings.RemoteInput.Enabled    := True;
@@ -358,6 +358,7 @@ begin
   if not RSClient.IsLoggedIn then Login.LoginPlayer;
 
   ClearDebug();
+  AntibanStuff;
 
   ArdyDiary             := Achievements.GetDiaryLevel(ERSAchievementDiary.ARDOUGNE);
   LumbridgeDiary        := Achievements.GetDiaryLevel(ERSAchievementDiary.LUMBRIDGE_AND_DRAYNOR);
@@ -1110,7 +1111,7 @@ until not(mainscreen.incombat);
 
 begin
   Init;
-  AntibanStuff;
+  //AntibanStuff;
 
   if not (InCwarsArea or InFeroxEnclave or InGE) then
   Terminatescript("Please make sure you are in either at the Ferox Enclave,
