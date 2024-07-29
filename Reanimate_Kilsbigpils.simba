@@ -44,7 +44,7 @@ Const
   Use_AutoWorldHop    := True; // (True/False) - Want to auto WorldHop if players nearby you while summoning?
   UseTotalWorlds      := True; // (True/False) - Will also Hop to Total Level Worlds
   PreferedWorldRegion := 'EU'; // (Case Sensitive) - Can be EU/NAEast/NAWest/AUS/CUSTOM
-  WorldListCustom     := [123,321]; // (!-WARNING-!) If not using don't touch it, modify if using PreferedWorldRegion := CUSTOM
+  WorldListCustom : TIntegerArray := [123,321]; // (!-WARNING-!) If not using don't touch it, modify if using PreferedWorldRegion := CUSTOM
 
 {.............-= [   -SETTINGS END-   ] =-.............}
 
